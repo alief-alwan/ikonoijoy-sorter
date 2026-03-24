@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 
 const ARTIST_IDS = {
-  "=LOVE": "48NRmDl3hJxtb1r36VkzUq",
+  "=LOVE": "1j2WhcTW00Zd2SjFYsJVc6",
   "≠ME": "3lIhMwj2wGFV2oGSsAb8qG",
   "≒JOY": "0CXdxGaAia8vQLHVRFXW8a",
 };
