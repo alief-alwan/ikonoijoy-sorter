@@ -8,9 +8,17 @@ function Comparison({ pair, onChoice, progress }) {
   return (
     <div className="comparison">
       <div className="progress-bar-container">
-        <div className="progress-bar" style={{ width: `${percentage}%` }} />
+        <div
+          className="progress-bar"
+          style={{ width: `${percentage}%` }}
+          role="progressbar"
+          aria-valuenow={percentage}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-describedby="comparison-progress-text"
+        />
       </div>
-      <p className="progress-text">
+      <p id="comparison-progress-text" className="progress-text">
         Comparison {progress.current + 1} / ~{progress.total} ({percentage}%)
       </p>
 

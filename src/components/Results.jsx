@@ -29,6 +29,7 @@ function Results({ results, onRestart }) {
                 target="_blank"
                 rel="noopener noreferrer"
                 title="Open in Spotify"
+                aria-label="Open in Spotify"
               >
                 🎧
               </a>

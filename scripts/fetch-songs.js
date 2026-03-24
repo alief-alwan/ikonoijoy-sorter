@@ -74,14 +74,17 @@ async function main() {
         if (seen.has(key)) continue;
         seen.add(key);
 
+        const images = Array.isArray(album.images) ? album.images : [];
+        const firstImage = images[0] || null;
+        const lastImage = images.length ? images[images.length - 1] : null;
+
         allSongs.push({
           id: track.id,
           title: track.name,
           group,
           album: album.name,
-          albumArt: album.images?.[0]?.url || null,
-          albumArtSmall:
-            album.images?.[album.images.length - 1]?.url || null,
+          albumArt: firstImage?.url || null,
+          albumArtSmall: lastImage?.url || null,
           previewUrl: track.preview_url || null,
           spotifyUrl: track.external_urls?.spotify || null,
           releaseDate: album.release_date,
