@@ -11,6 +11,10 @@ const IDOL_GROUPS = [
   { name: "≒JOY", searchName: "ニアリーイコールジョイ" },
 ];
 
+function katakanaWord(word) {
+  return new RegExp(`(?<![ァ-ヶー])${word}(?![ァ-ヶー])`);
+}
+
 async function fetchSongsForGroup(group) {
   const url = `https://itunes.apple.com/search?term=${encodeURIComponent(group.searchName)}&country=jp&media=music&entity=song&limit=200`;
   try {
@@ -32,9 +36,11 @@ async function fetchSongsForGroup(group) {
           !/\bconcert\b/.test(titleLower) &&
           !/\btour\b/.test(titleLower) &&
           !/\bfes\b/.test(titleLower) &&
-          !title.includes("コンサート") &&
-          !title.includes("ツアー") &&
-          !title.includes("フェス")
+          !/\bfirst take\b/.test(titleLower) &&
+          !katakanaWord("コンサート").test(title) &&
+          !katakanaWord("ツアー").test(title) &&
+          !katakanaWord("フェス").test(title) &&
+          !katakanaWord("ファーストテイク").test(title)
         );
       })
       .filter(
