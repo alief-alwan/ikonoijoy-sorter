@@ -32,6 +32,7 @@ async function fetchSongsForGroup(group) {
           !/\bconcert\b/.test(titleLower) &&
           !/\btour\b/.test(titleLower) &&
           !/\bfes\b/.test(titleLower) &&
+          !titleLower.includes("first take") &&
           !title.includes("コンサート") &&
           !title.includes("ツアー") &&
           !title.includes("フェス")
