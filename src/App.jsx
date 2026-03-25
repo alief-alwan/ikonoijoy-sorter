@@ -26,7 +26,8 @@ async function fetchSongsForGroup(group) {
         return (
           !titleLower.includes("off vocal") &&
           !titleLower.includes("instrumental") &&
-          !titleLower.includes("inst.")
+          !titleLower.includes("inst.") &&
+          !/\blive\b/.test(titleLower)
         );
       })
       .filter(
