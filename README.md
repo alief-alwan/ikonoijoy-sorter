@@ -33,5 +33,5 @@ Songs are refreshed weekly from the Spotify API.
 2. Add secrets to your repo (**Settings → Secrets → Actions**):
    - `SPOTIFY_CLIENT_ID`
    - `SPOTIFY_CLIENT_SECRET`
-3. Enable GitHub Pages (**Settings → Pages → Source → Deploy from a branch**, select `gh-pages` / `/ (root)`)
+3. Enable GitHub Pages (**Settings → Pages → Source → GitHub Actions**)
 4. Push to `main`
