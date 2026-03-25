@@ -8,13 +8,9 @@
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1"
   },
-  "devDependencies": {
-    "node-fetch": "^2.7.0"
-  },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
-    "fetch-songs": "node scripts/fetch-songs.js"
+    "build": "react-scripts build"
   },
   "browserslist": {
     "production": [">0.2%", "not dead", "not op_mini all"],

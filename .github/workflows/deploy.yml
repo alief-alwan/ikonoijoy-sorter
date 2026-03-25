@@ -34,12 +34,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Fetch songs from Spotify
-        env:
-          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
-          SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
-        run: npm run fetch-songs
-
       - name: Build React app
         run: npm run build
 
