@@ -15,8 +15,12 @@ async function fetchSongsForGroup(group) {
   const url = `https://itunes.apple.com/search?term=${encodeURIComponent(group.searchName)}&country=jp&media=music&entity=song&limit=200`;
   try {
     const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`iTunes API request failed with status ${response.status} for group ${group.name}`);
+    }
     const data = await response.json();
-    return data.results
+    const tracks = Array.isArray(data.results) ? data.results : [];
+    return tracks
       .filter((track) => {
         const titleLower = track.trackName.toLowerCase();
         return (
@@ -48,11 +52,15 @@ async function fetchSongsForGroup(group) {
 async function fetchAllSongs() {
   const results = await Promise.all(IDOL_GROUPS.map(fetchSongsForGroup));
   const allSongs = results.flat();
+  if (allSongs.length === 0) {
+    throw new Error("Could not load any songs from iTunes. Please try again later.");
+  }
   const uniqueSongs = [];
-  const seenTitles = new Set();
+  const seenSongKeys = new Set();
   for (const song of allSongs) {
-    if (!seenTitles.has(song.title)) {
-      seenTitles.add(song.title);
+    const key = `${song.group}|${song.title.toLowerCase().trim().replace(/\s+/g, " ")}`;
+    if (!seenSongKeys.has(key)) {
+      seenSongKeys.add(key);
       uniqueSongs.push(song);
     }
   }

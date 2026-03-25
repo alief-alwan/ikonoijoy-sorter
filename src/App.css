@@ -265,7 +265,8 @@ body {
 }
 
 .preview-audio {
-  width: 250px;
+  width: 100%;
+  max-width: 250px;
   height: 32px;
   accent-color: #e94560;
 }

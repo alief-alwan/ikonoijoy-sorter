@@ -25,6 +25,7 @@ function Results({ results, onRestart }) {
                 className="preview-audio"
                 src={song.previewUrl}
                 controls
+                preload="none"
                 aria-label={`Preview: ${song.title}`}
               />
             )}
