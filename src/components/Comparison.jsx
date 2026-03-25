@@ -1,5 +1,31 @@
 import React from "react";
 
+function SongCard({ song, side, onChoice }) {
+  return (
+    <div className="song-card-wrapper">
+      <button className="song-card" onClick={() => onChoice(side)}>
+        {song.coverArt && (
+          <img
+            className="album-art"
+            src={song.coverArt}
+            alt={song.title}
+          />
+        )}
+        <span className="song-title">{song.title}</span>
+        <span className="song-group">{song.group}</span>
+      </button>
+      {song.previewUrl && (
+        <audio
+          className="preview-audio"
+          src={song.previewUrl}
+          controls
+          aria-label={`Preview: ${song.title}`}
+        />
+      )}
+    </div>
+  );
+}
+
 function Comparison({ pair, onChoice, progress }) {
   const percentage = progress.total
     ? Math.round((progress.current / progress.total) * 100)
@@ -25,33 +51,9 @@ function Comparison({ pair, onChoice, progress }) {
       <h2>Which song do you prefer?</h2>
 
       <div className="matchup">
-        <button className="song-card" onClick={() => onChoice("left")}>
-          {pair.left.albumArt && (
-            <img
-              className="album-art"
-              src={pair.left.albumArt}
-              alt={pair.left.album}
-            />
-          )}
-          <span className="song-title">{pair.left.title}</span>
-          <span className="song-group">{pair.left.group}</span>
-          <span className="song-album">{pair.left.album}</span>
-        </button>
-
+        <SongCard song={pair.left} side="left" onChoice={onChoice} />
         <span className="vs">VS</span>
-
-        <button className="song-card" onClick={() => onChoice("right")}>
-          {pair.right.albumArt && (
-            <img
-              className="album-art"
-              src={pair.right.albumArt}
-              alt={pair.right.album}
-            />
-          )}
-          <span className="song-title">{pair.right.title}</span>
-          <span className="song-group">{pair.right.group}</span>
-          <span className="song-album">{pair.right.album}</span>
-        </button>
+        <SongCard song={pair.right} side="right" onChoice={onChoice} />
       </div>
     </div>
   );

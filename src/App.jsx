@@ -5,6 +5,60 @@ import Results from "./components/Results";
 import { mergeSortGenerator, estimateComparisons } from "./utils/mergeSort";
 import "./App.css";
 
+const IDOL_GROUPS = [
+  { name: "=LOVE", searchName: "イコールラブ" },
+  { name: "≠ME", searchName: "ノットイコールミー" },
+  { name: "≒JOY", searchName: "ニアリーイコールジョイ" },
+];
+
+async function fetchSongsForGroup(group) {
+  const url = `https://itunes.apple.com/search?term=${encodeURIComponent(group.searchName)}&country=jp&media=music&entity=song&limit=200`;
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    return data.results
+      .filter((track) => {
+        const titleLower = track.trackName.toLowerCase();
+        return (
+          !titleLower.includes("off vocal") &&
+          !titleLower.includes("instrumental") &&
+          !titleLower.includes("inst.")
+        );
+      })
+      .filter(
+        (track) =>
+          track.artistName.includes(group.name) ||
+          track.artistName.includes(group.searchName)
+      )
+      .map((track) => ({
+        id: track.trackId,
+        title: track.trackName,
+        group: group.name,
+        coverArt: track.artworkUrl100
+          ? track.artworkUrl100.replace("100x100bb", "300x300bb")
+          : null,
+        previewUrl: track.previewUrl,
+      }));
+  } catch (error) {
+    console.error(`Failed to fetch data for ${group.name}:`, error);
+    return [];
+  }
+}
+
+async function fetchAllSongs() {
+  const results = await Promise.all(IDOL_GROUPS.map(fetchSongsForGroup));
+  const allSongs = results.flat();
+  const uniqueSongs = [];
+  const seenTitles = new Set();
+  for (const song of allSongs) {
+    if (!seenTitles.has(song.title)) {
+      seenTitles.add(song.title);
+      uniqueSongs.push(song);
+    }
+  }
+  return uniqueSongs;
+}
+
 function shuffleArray(array) {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -25,20 +79,10 @@ function App() {
   const generatorRef = useRef(null);
 
   useEffect(() => {
-    async function fetchSongs() {
-      try {
-        setLoading(true);
-        const res = await fetch(`${process.env.PUBLIC_URL}/songs.json`);
-        if (!res.ok) throw new Error("Failed to load songs");
-        const data = await res.json();
-        setSongs(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchSongs();
+    fetchAllSongs()
+      .then((data) => setSongs(data))
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
   }, []);
 
   const startSorting = useCallback((songsToSort) => {
@@ -84,7 +128,7 @@ function App() {
       <div className="app">
         <h1 className="app-title">🎶 IKONOIJOY Song Sorter</h1>
         <div className="loading-spinner" />
-        <p>Loading songs from Spotify...</p>
+        <p>Loading songs from iTunes...</p>
       </div>
     );
   }
