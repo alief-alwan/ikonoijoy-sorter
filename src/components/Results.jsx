@@ -9,30 +9,25 @@ function Results({ results, onRestart }) {
         {results.map((song, index) => (
           <li key={song.id} className="result-item">
             <span className="rank">#{index + 1}</span>
-            {song.albumArtSmall && (
+            {song.coverArt && (
               <img
                 className="result-album-art"
-                src={song.albumArtSmall}
-                alt={song.album}
+                src={song.coverArt}
+                alt={song.title}
               />
             )}
             <div className="result-info">
               <span className="song-title">{song.title}</span>
-              <span className="song-meta">
-                {song.group} · {song.album}
-              </span>
+              <span className="song-meta">{song.group}</span>
             </div>
-            {song.spotifyUrl && (
-              <a
-                className="spotify-link"
-                href={song.spotifyUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                title="Open in Spotify"
-                aria-label="Open in Spotify"
-              >
-                🎧
-              </a>
+            {song.previewUrl && (
+              <audio
+                className="preview-audio"
+                src={song.previewUrl}
+                controls
+                preload="none"
+                aria-label={`Preview: ${song.title}`}
+              />
             )}
           </li>
         ))}
