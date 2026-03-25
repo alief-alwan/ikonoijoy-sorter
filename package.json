@@ -2,7 +2,7 @@
   "name": "ikonoijoy-sorter",
   "version": "1.0.0",
   "private": true,
-  "homepage": ".",
+  "homepage": "https://alief-alwan.github.io/ikonoijoy-sorter",
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
