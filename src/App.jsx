@@ -23,10 +23,18 @@ async function fetchSongsForGroup(group) {
     return tracks
       .filter((track) => {
         const titleLower = track.trackName.toLowerCase();
+        const title = track.trackName;
         return (
           !titleLower.includes("off vocal") &&
           !titleLower.includes("instrumental") &&
-          !titleLower.includes("inst.")
+          !titleLower.includes("inst.") &&
+          !/\blive\b/.test(titleLower) &&
+          !/\bconcert\b/.test(titleLower) &&
+          !/\btour\b/.test(titleLower) &&
+          !/\bfes\b/.test(titleLower) &&
+          !title.includes("コンサート") &&
+          !title.includes("ツアー") &&
+          !title.includes("フェス")
         );
       })
       .filter(
