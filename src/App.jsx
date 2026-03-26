@@ -22,6 +22,11 @@ const IDOL_GROUPS = [
     searchNames: ["ニアリーイコールジョイ", "≒JOY", "ニアジョイ"],
     artistNames: ["≒JOY", "ニアリーイコールジョイ"],
   },
+  {
+    name: "IKONOIJOY",
+    searchNames: ["IKONOIJOY", "イコノイジョイ"],
+    artistNames: ["IKONOIJOY", "イコノイジョイ"],
+  },
 ];
 
 const KATAKANA_LIVE_KEYWORDS = ["コンサート", "ツアー", "フェス", "ファーストテイク"];
