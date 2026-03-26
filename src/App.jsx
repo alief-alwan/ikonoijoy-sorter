@@ -12,16 +12,18 @@ const IDOL_GROUPS = [
   { name: "≒JOY", searchName: "ニアリーイコールジョイ" },
 ];
 
-function katakanaWord(word) {
-  return new RegExp(`(?:^|[^ァ-ヶー])${word}(?![ァ-ヶー])`);
-}
+const KATAKANA_LIVE_KEYWORDS = ["コンサート", "ツアー", "フェス", "ファーストテイク"];
 
-const KATAKANA_FILTERS = [
-  katakanaWord("コンサート"),
-  katakanaWord("ツアー"),
-  katakanaWord("フェス"),
-  katakanaWord("ファーストテイク"),
-];
+// Longer words that contain a live keyword but are not live indicators
+const KATAKANA_EXCEPTIONS = ["フェスティバル"];
+
+function hasLiveKatakanaKeyword(title) {
+  let cleaned = title;
+  for (const ex of KATAKANA_EXCEPTIONS) {
+    cleaned = cleaned.replaceAll(ex, "");
+  }
+  return KATAKANA_LIVE_KEYWORDS.some((kw) => cleaned.includes(kw));
+}
 
 async function fetchSongsForGroup(group) {
   const url = `https://itunes.apple.com/search?term=${encodeURIComponent(group.searchName)}&country=jp&media=music&entity=song&limit=200`;
@@ -45,7 +47,7 @@ async function fetchSongsForGroup(group) {
           !/\btour\b/.test(titleLower) &&
           !/\bfes\b/.test(titleLower) &&
           !/\bfirst take\b/.test(titleLower) &&
-          !KATAKANA_FILTERS.some((re) => re.test(title))
+          !hasLiveKatakanaKeyword(title)
         );
       })
       .filter(
