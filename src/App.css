@@ -498,3 +498,133 @@ body {
   height: 32px;
   accent-color: #e94560;
 }
+
+/* ── Mobile / Phone Layout ── */
+@media (max-width: 600px) {
+  .app {
+    padding: 1.25rem 0.75rem;
+  }
+
+  .app-title {
+    font-size: 1.5rem;
+  }
+
+  .app-subtitle {
+    margin-bottom: 1.25rem;
+  }
+
+  /* ── Comparison ── */
+  .comparison h2 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+  }
+
+  .matchup {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .song-card {
+    width: 100%;
+    max-width: 280px;
+    height: auto;
+    min-height: 0;
+    padding: 1rem;
+  }
+
+  .album-art {
+    width: 110px;
+    height: 110px;
+  }
+
+  .song-card .song-title {
+    font-size: 0.95rem;
+  }
+
+  .vs {
+    font-size: 1.1rem;
+    margin: 0;
+  }
+
+  .preview-audio {
+    max-width: 220px;
+  }
+
+  /* ── Results ── */
+  .podium {
+    gap: 0.5rem;
+  }
+
+  .podium-item {
+    width: clamp(85px, 27vw, 130px);
+    padding: 0.75rem 0.5rem;
+  }
+
+  .podium-art {
+    width: clamp(50px, 18vw, 70px);
+    height: clamp(50px, 18vw, 70px);
+  }
+
+  .podium-1 .podium-art {
+    width: clamp(60px, 22vw, 90px);
+    height: clamp(60px, 22vw, 90px);
+  }
+
+  .podium-title {
+    font-size: 0.7rem;
+  }
+
+  .podium-group {
+    font-size: 0.6rem;
+  }
+
+  .save-card {
+    padding: 1rem 0.75rem;
+  }
+
+  .save-card-title {
+    font-size: 1rem;
+  }
+
+  .result-item {
+    padding: 0.6rem 0.5rem;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .result-item .rank {
+    min-width: 2rem;
+    font-size: 0.85rem;
+  }
+
+  .result-album-art {
+    width: 34px;
+    height: 34px;
+  }
+
+  .result-info .song-title {
+    font-size: 0.85rem;
+  }
+
+  .result-item .preview-audio {
+    width: 100%;
+    max-width: none;
+    flex-basis: 100%;
+    margin-left: 2.5rem;
+  }
+
+  .results-actions {
+    gap: 0.5rem;
+  }
+
+  .btn-action {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+  }
+
+  .btn-start,
+  .btn-restart {
+    padding: 0.7rem 2rem;
+    font-size: 1rem;
+  }
+}
