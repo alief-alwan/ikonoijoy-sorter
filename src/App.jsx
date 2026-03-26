@@ -3,12 +3,24 @@ import Welcome from "./components/Welcome";
 import Comparison from "./components/Comparison";
 import Results from "./components/Results";
 import { mergeSortGenerator, estimateComparisons } from "./utils/mergeSort";
+import { initTokenizer, convertToRomaji } from "./utils/romaji";
 import "./App.css";
 
 const IDOL_GROUPS = [
   { name: "=LOVE", searchName: "イコールラブ" },
   { name: "≠ME", searchName: "ノットイコールミー" },
   { name: "≒JOY", searchName: "ニアリーイコールジョイ" },
+];
+
+function katakanaWord(word) {
+  return new RegExp(`(?:^|[^ァ-ヶー])${word}(?![ァ-ヶー])`);
+}
+
+const KATAKANA_FILTERS = [
+  katakanaWord("コンサート"),
+  katakanaWord("ツアー"),
+  katakanaWord("フェス"),
+  katakanaWord("ファーストテイク"),
 ];
 
 async function fetchSongsForGroup(group) {
@@ -32,9 +44,8 @@ async function fetchSongsForGroup(group) {
           !/\bconcert\b/.test(titleLower) &&
           !/\btour\b/.test(titleLower) &&
           !/\bfes\b/.test(titleLower) &&
-          !title.includes("コンサート") &&
-          !title.includes("ツアー") &&
-          !title.includes("フェス")
+          !/\bfirst take\b/.test(titleLower) &&
+          !KATAKANA_FILTERS.some((re) => re.test(title))
         );
       })
       .filter(
@@ -57,8 +68,28 @@ async function fetchSongsForGroup(group) {
   }
 }
 
+const JAPANESE_CHAR_RE = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]/;
+
+async function addRomajiTitles(songs) {
+  try {
+    await initTokenizer();
+    return Promise.all(
+      songs.map(async (song) => {
+        if (!JAPANESE_CHAR_RE.test(song.title)) return song;
+        const romaji = await convertToRomaji(song.title);
+        return { ...song, romajiTitle: romaji };
+      })
+    );
+  } catch {
+    return songs;
+  }
+}
+
 async function fetchAllSongs() {
-  const results = await Promise.all(IDOL_GROUPS.map(fetchSongsForGroup));
+  const [results] = await Promise.all([
+    Promise.all(IDOL_GROUPS.map(fetchSongsForGroup)),
+    initTokenizer().catch(() => {}),
+  ]);
   const allSongs = results.flat();
   if (allSongs.length === 0) {
     throw new Error("Could not load any songs from iTunes. Please try again later.");
@@ -72,7 +103,7 @@ async function fetchAllSongs() {
       uniqueSongs.push(song);
     }
   }
-  return uniqueSongs;
+  return addRomajiTitles(uniqueSongs);
 }
 
 function shuffleArray(array) {

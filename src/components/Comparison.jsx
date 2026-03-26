@@ -12,6 +12,9 @@ function SongCard({ song, side, onChoice }) {
           />
         )}
         <span className="song-title">{song.title}</span>
+        {song.romajiTitle && (
+          <span className="song-romaji">{song.romajiTitle}</span>
+        )}
         <span className="song-group">{song.group}</span>
       </button>
       {song.previewUrl && (

@@ -192,6 +192,12 @@ body {
   opacity: 0.6;
 }
 
+.song-romaji {
+  font-size: 0.8rem;
+  opacity: 0.55;
+  font-style: italic;
+}
+
 .song-card .song-album {
   font-size: 0.7rem;
   opacity: 0.45;
