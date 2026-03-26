@@ -34,14 +34,14 @@ function Welcome({ songs, onStart }) {
 
   const songsPerGroup = useMemo(() => {
     const counts = {};
-    for (const group of groups) {
-      counts[group] = songs.filter((s) => s.group === group).length;
+    for (const song of songs) {
+      counts[song.group] = (counts[song.group] || 0) + 1;
     }
     return counts;
-  }, [songs, groups]);
+  }, [songs]);
 
   const filteredSongs = songs.filter((s) => selectedGroups.has(s.group));
-  const sliderMax = Math.max(QUICK_MODE_MIN, filteredSongs.length);
+  const sliderMax = filteredSongs.length;
   const clampedMax = Math.min(maxSongs, filteredSongs.length);
 
   const handleStart = () => {

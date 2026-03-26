@@ -199,7 +199,7 @@ function App() {
   }, []);
 
   const handleChoice = useCallback((choice) => {
-    choiceHistoryRef.current = [...choiceHistoryRef.current, choice];
+    choiceHistoryRef.current.push(choice);
     const gen = generatorRef.current;
     const next = gen.next(choice);
     setProgress((prev) => ({ ...prev, current: prev.current + 1 }));

@@ -43,10 +43,13 @@ function Comparison({ pair, onChoice, onUndo, canUndo, progress }) {
     const handleKeyDown = (e) => {
       if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.isContentEditable) return;
       if (e.key === "ArrowLeft") {
+        e.preventDefault();
         onChoice("left");
       } else if (e.key === "ArrowRight") {
+        e.preventDefault();
         onChoice("right");
       } else if (e.key.toLowerCase() === "z" || e.key.toLowerCase() === "u") {
+        e.preventDefault();
         if (canUndo) onUndo();
       }
     };
