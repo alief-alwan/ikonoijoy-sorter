@@ -31,12 +31,32 @@ function Results({ results, onRestart }) {
           `#${i + 1} ${song.title}${song.romajiTitle ? ` (${song.romajiTitle})` : ""} — ${song.group}`
       )
       .join("\n");
+    let success = false;
     try {
-      await navigator.clipboard.writeText(text);
-      setCopyStatus("copied");
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+        success = true;
+      }
     } catch {
-      setCopyStatus("failed");
+      /* fall through to fallback */
     }
+    if (!success) {
+      try {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.setAttribute("aria-hidden", "true");
+        textarea.style.position = "fixed";
+        textarea.style.left = "-9999px";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        success = document.execCommand("copy");
+        document.body.removeChild(textarea);
+      } catch {
+        success = false;
+      }
+    }
+    setCopyStatus(success ? "copied" : "failed");
     clearTimeout(copyTimerRef.current);
     copyTimerRef.current = setTimeout(() => setCopyStatus("idle"), 2000);
   }, [results]);
