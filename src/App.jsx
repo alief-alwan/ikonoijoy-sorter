@@ -166,6 +166,7 @@ function App() {
   const generatorRef = useRef(null);
   const shuffledSongsRef = useRef([]);
   const choiceHistoryRef = useRef([]);
+  const sortPoolRef = useRef([]);
 
   useEffect(() => {
     fetchAllSongs()
@@ -176,6 +177,7 @@ function App() {
 
   const startSorting = useCallback((songsToSort, name) => {
     setUserName(name || "");
+    sortPoolRef.current = songsToSort;
     const shuffled = shuffleArray(songsToSort);
     shuffledSongsRef.current = shuffled;
     choiceHistoryRef.current = [];
@@ -232,6 +234,10 @@ function App() {
     setCanUndo(newHistory.length > 0);
   }, []);
 
+  const handleSortAgain = useCallback(() => {
+    startSorting(sortPoolRef.current, userName);
+  }, [startSorting, userName]);
+
   const handleRestart = useCallback(() => {
     setPhase("welcome");
     setCurrentPair(null);
@@ -278,7 +284,7 @@ function App() {
         />
       )}
       {phase === "results" && (
-        <Results results={results} userName={userName} onRestart={handleRestart} />
+        <Results results={results} userName={userName} onRestart={handleRestart} onSortAgain={handleSortAgain} />
       )}
     </div>
   );

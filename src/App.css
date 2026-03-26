@@ -537,6 +537,121 @@ body {
   margin-top: 0.75rem;
 }
 
+/* ── Select All / Deselect All ── */
+.select-all-row {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.btn-select-toggle {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.35rem 0.9rem;
+  font-size: 0.8rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-select-toggle:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.btn-select-toggle:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ── Per Group Song Counts ── */
+.group-song-count {
+  font-size: 0.72rem;
+  opacity: 0.55;
+  margin-left: 0.3rem;
+}
+
+/* ── Quick Mode ── */
+.quick-mode-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+}
+
+.quick-mode-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0.45rem 1rem;
+  border-radius: 10px;
+  transition: background 0.2s;
+}
+
+.quick-mode-toggle:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.quick-mode-toggle input {
+  accent-color: #e94560;
+}
+
+.quick-mode-hint {
+  font-size: 0.7rem;
+  opacity: 0.5;
+  margin-left: 0.25rem;
+}
+
+.quick-mode-slider-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  width: 100%;
+  max-width: 280px;
+}
+
+.slider-label {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.quick-mode-slider {
+  width: 100%;
+  accent-color: #e94560;
+  cursor: pointer;
+}
+
+/* ── Sort Again Same Pool ── */
+.restart-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.btn-sort-again {
+  background: rgba(233, 69, 96, 0.15);
+  color: #fff;
+  border: 1px solid #e94560;
+  padding: 0.8rem 1.75rem;
+  font-size: 1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.15s, background 0.2s;
+}
+
+.btn-sort-again:hover {
+  background: rgba(233, 69, 96, 0.3);
+  transform: scale(1.05);
+}
+
 /* ── Mobile / Phone Layout ── */
 @media (max-width: 600px) {
   .app {
@@ -674,5 +789,28 @@ body {
   .btn-restart {
     padding: 0.7rem 2rem;
     font-size: 1rem;
+  }
+
+  .select-all-row {
+    gap: 0.4rem;
+  }
+
+  .btn-select-toggle {
+    padding: 0.3rem 0.7rem;
+    font-size: 0.75rem;
+  }
+
+  .quick-mode-slider-wrapper {
+    max-width: 240px;
+  }
+
+  .restart-actions {
+    gap: 0.5rem;
+  }
+
+  .btn-restart,
+  .btn-sort-again {
+    padding: 0.65rem 1.25rem;
+    font-size: 0.9rem;
   }
 }
