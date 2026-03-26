@@ -22,6 +22,11 @@ const IDOL_GROUPS = [
     searchNames: ["ニアリーイコールジョイ", "≒JOY", "ニアジョイ"],
     artistNames: ["≒JOY", "ニアリーイコールジョイ"],
   },
+  {
+    name: "IKONOIJOY",
+    searchNames: ["IKONOIJOY", "イコノイジョイ"],
+    artistNames: ["IKONOIJOY", "イコノイジョイ"],
+  },
 ];
 
 const KATAKANA_LIVE_KEYWORDS = ["コンサート", "ツアー", "フェス", "ファーストテイク"];
@@ -72,6 +77,9 @@ async function fetchSongsForGroup(group) {
           !titleLower.includes("off vocal") &&
           !titleLower.includes("instrumental") &&
           !titleLower.includes("inst.") &&
+          !titleLower.includes("tv size") &&
+          !titleLower.includes("tvサイズ") &&
+          !titleLower.includes("full size") &&
           !/\blive\b/.test(titleLower) &&
           !/\bconcert\b/.test(titleLower) &&
           !/\btour\b/.test(titleLower) &&
