@@ -2,7 +2,7 @@
   "name": "ikonoijoy-sorter",
   "version": "1.0.0",
   "private": true,
-  "homepage": "https://alief-alwan.github.io/ikonoijoy-sorter",
+  "homepage": "./",
   "dependencies": {
     "html2canvas": "^1.4.1",
     "kuromoji": "^0.1.2",
