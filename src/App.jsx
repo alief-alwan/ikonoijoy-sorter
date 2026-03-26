@@ -7,9 +7,21 @@ import { initTokenizer, convertToRomaji } from "./utils/romaji";
 import "./App.css";
 
 const IDOL_GROUPS = [
-  { name: "=LOVE", searchName: "イコールラブ" },
-  { name: "≠ME", searchName: "ノットイコールミー" },
-  { name: "≒JOY", searchName: "ニアリーイコールジョイ" },
+  {
+    name: "=LOVE",
+    searchNames: ["イコールラブ", "=LOVE", "イコラブ"],
+    artistNames: ["=LOVE", "イコールラブ"],
+  },
+  {
+    name: "≠ME",
+    searchNames: ["ノットイコールミー", "≠ME", "ノイミー"],
+    artistNames: ["≠ME", "ノットイコールミー", "ノイミー"],
+  },
+  {
+    name: "≒JOY",
+    searchNames: ["ニアリーイコールジョイ", "≒JOY", "ニアジョイ"],
+    artistNames: ["≒JOY", "ニアリーイコールジョイ"],
+  },
 ];
 
 const KATAKANA_LIVE_KEYWORDS = ["コンサート", "ツアー", "フェス", "ファーストテイク"];
@@ -25,16 +37,34 @@ function hasLiveKatakanaKeyword(title) {
   return KATAKANA_LIVE_KEYWORDS.some((kw) => cleaned.includes(kw));
 }
 
+async function fetchSongsForSearchName(searchName) {
+  const url = `https://itunes.apple.com/search?term=${encodeURIComponent(searchName)}&country=jp&media=music&entity=song&limit=200`;
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`iTunes API request failed with status ${response.status}`);
+  }
+  const data = await response.json();
+  return Array.isArray(data.results) ? data.results : [];
+}
+
 async function fetchSongsForGroup(group) {
-  const url = `https://itunes.apple.com/search?term=${encodeURIComponent(group.searchName)}&country=jp&media=music&entity=song&limit=200`;
   try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`iTunes API request failed with status ${response.status} for group ${group.name}`);
+    const trackArrays = await Promise.all(
+      group.searchNames.map((searchName) =>
+        fetchSongsForSearchName(searchName).catch((err) => {
+          console.warn(`Search failed for "${searchName}":`, err);
+          return [];
+        })
+      )
+    );
+    const trackMap = new Map();
+    for (const track of trackArrays.flat()) {
+      if (!trackMap.has(track.trackId)) {
+        trackMap.set(track.trackId, track);
+      }
     }
-    const data = await response.json();
-    const tracks = Array.isArray(data.results) ? data.results : [];
-    return tracks
+    const allNames = [group.name, ...group.artistNames];
+    return [...trackMap.values()]
       .filter((track) => {
         const titleLower = track.trackName.toLowerCase();
         const title = track.trackName;
@@ -50,10 +80,8 @@ async function fetchSongsForGroup(group) {
           !hasLiveKatakanaKeyword(title)
         );
       })
-      .filter(
-        (track) =>
-          track.artistName.includes(group.name) ||
-          track.artistName.includes(group.searchName)
+      .filter((track) =>
+        allNames.some((n) => track.artistName.includes(n))
       )
       .map((track) => ({
         id: track.trackId,
