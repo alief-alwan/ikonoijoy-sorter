@@ -1,9 +1,9 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
-import { toRomaji } from "wanakana";
 import Welcome from "./components/Welcome";
 import Comparison from "./components/Comparison";
 import Results from "./components/Results";
 import { mergeSortGenerator, estimateComparisons } from "./utils/mergeSort";
+import { initTokenizer, convertToRomaji } from "./utils/romaji";
 import "./App.css";
 
 const IDOL_GROUPS = [
@@ -53,29 +53,43 @@ async function fetchSongsForGroup(group) {
           track.artistName.includes(group.name) ||
           track.artistName.includes(group.searchName)
       )
-      .map((track) => {
-        const title = track.trackName;
-        const hasJapanese = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]/.test(title);
-        const romaji = hasJapanese ? toRomaji(title) : null;
-        return {
-          id: track.trackId,
-          title,
-          romajiTitle: romaji,
-          group: group.name,
-          coverArt: track.artworkUrl100
-            ? track.artworkUrl100.replace("100x100bb", "300x300bb")
-            : null,
-          previewUrl: track.previewUrl,
-        };
-      });
+      .map((track) => ({
+        id: track.trackId,
+        title: track.trackName,
+        group: group.name,
+        coverArt: track.artworkUrl100
+          ? track.artworkUrl100.replace("100x100bb", "300x300bb")
+          : null,
+        previewUrl: track.previewUrl,
+      }));
   } catch (error) {
     console.error(`Failed to fetch data for ${group.name}:`, error);
     return [];
   }
 }
 
+const JAPANESE_CHAR_RE = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]/;
+
+async function addRomajiTitles(songs) {
+  try {
+    await initTokenizer();
+    return Promise.all(
+      songs.map(async (song) => {
+        if (!JAPANESE_CHAR_RE.test(song.title)) return song;
+        const romaji = await convertToRomaji(song.title);
+        return { ...song, romajiTitle: romaji };
+      })
+    );
+  } catch {
+    return songs;
+  }
+}
+
 async function fetchAllSongs() {
-  const results = await Promise.all(IDOL_GROUPS.map(fetchSongsForGroup));
+  const [results] = await Promise.all([
+    Promise.all(IDOL_GROUPS.map(fetchSongsForGroup)),
+    initTokenizer().catch(() => {}),
+  ]);
   const allSongs = results.flat();
   if (allSongs.length === 0) {
     throw new Error("Could not load any songs from iTunes. Please try again later.");
@@ -89,7 +103,7 @@ async function fetchAllSongs() {
       uniqueSongs.push(song);
     }
   }
-  return uniqueSongs;
+  return addRomajiTitles(uniqueSongs);
 }
 
 function shuffleArray(array) {
