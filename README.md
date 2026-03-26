@@ -1,12 +1,15 @@
 # 🎶 IKONOIJOY Song Sorter
 
-Rank songs from **=LOVE**, **≠ME**, and **≒JOY** by choosing your favorite — two at a time. Uses merge sort under the hood for efficient pairwise comparison.
+Rank songs from **=LOVE**, **≠ME**, **≒JOY**, and **IKONOIJOY** by choosing your favorite — two at a time. Uses merge sort under the hood for efficient pairwise comparison.
 
 ## How It Works
 
 1. Select which groups to include
-2. Pick your preferred song from each pair
-3. Get your personalized ranking with album art and Spotify links
+2. Pick your preferred song from each pair — with album art and audio previews to help you decide
+3. Get your personalized ranking with romaji titles for Japanese songs
+4. Save your top 10 as an image or copy the full ranking to your clipboard
+
+Songs are fetched live from the [iTunes Search API](https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/iTuneSearchAPI/) — no API key required.
 
 ## Development
 
@@ -14,24 +17,15 @@ Rank songs from **=LOVE**, **≠ME**, and **≒JOY** by choosing your favorite �
 # Install dependencies
 npm install
 
-# Fetch songs from Spotify (requires env vars)
-SPOTIFY_CLIENT_ID=xxx SPOTIFY_CLIENT_SECRET=xxx npm run fetch-songs
-
 # Start dev server
 npm start
 ```
 
 ## Deployment
 
-Deployed automatically to GitHub Pages via GitHub Actions on every push to `main`.
-
-Songs are refreshed weekly from the Spotify API.
+Deployed automatically to GitHub Pages via GitHub Actions on every push to `main`. The app is also rebuilt weekly to pick up any new releases.
 
 ### Setup
 
-1. Create a [Spotify Developer App](https://developer.spotify.com/dashboard)
-2. Add secrets to your repo (**Settings → Secrets → Actions**):
-   - `SPOTIFY_CLIENT_ID`
-   - `SPOTIFY_CLIENT_SECRET`
-3. Enable GitHub Pages (**Settings → Pages → Source → Deploy from a branch**, select `gh-pages` / `/ (root)`)
-4. Push to `main`
+1. Enable GitHub Pages (**Settings → Pages → Source → Deploy from a branch**, select `gh-pages` / `/ (root)`)
+2. Push to `main`
