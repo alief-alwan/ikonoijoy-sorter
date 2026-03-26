@@ -3,7 +3,7 @@ import html2canvas from "html2canvas";
 
 const MEDAL = ["🥇", "🥈", "🥉"];
 
-function Results({ results, userName, onRestart }) {
+function Results({ results, userName, onRestart, onSortAgain }) {
   const [expanded, setExpanded] = useState(false);
   const [copyStatus, setCopyStatus] = useState("idle"); // idle | copied | failed
   const [saveStatus, setSaveStatus] = useState("idle"); // idle | saving | failed
@@ -210,9 +210,14 @@ function Results({ results, userName, onRestart }) {
         </button>
       )}
 
-      <button className="btn-restart" onClick={onRestart}>
-        Sort Again
-      </button>
+      <div className="restart-actions">
+        <button className="btn-restart" onClick={onRestart}>
+          🏠 Change Selection
+        </button>
+        <button className="btn-sort-again" onClick={onSortAgain}>
+          🔄 Sort Again (Same Pool)
+        </button>
+      </div>
     </div>
   );
 }

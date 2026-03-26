@@ -162,7 +162,11 @@ function App() {
   const [results, setResults] = useState([]);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [userName, setUserName] = useState("");
+  const [canUndo, setCanUndo] = useState(false);
   const generatorRef = useRef(null);
+  const shuffledSongsRef = useRef([]);
+  const choiceHistoryRef = useRef([]);
+  const sortPoolRef = useRef([]);
 
   useEffect(() => {
     fetchAllSongs()
@@ -173,9 +177,13 @@ function App() {
 
   const startSorting = useCallback((songsToSort, name) => {
     setUserName(name || "");
+    sortPoolRef.current = songsToSort;
     const shuffled = shuffleArray(songsToSort);
+    shuffledSongsRef.current = shuffled;
+    choiceHistoryRef.current = [];
     const total = estimateComparisons(shuffled.length);
     setProgress({ current: 0, total });
+    setCanUndo(false);
 
     const gen = mergeSortGenerator(shuffled);
     generatorRef.current = gen;
@@ -191,9 +199,11 @@ function App() {
   }, []);
 
   const handleChoice = useCallback((choice) => {
+    choiceHistoryRef.current.push(choice);
     const gen = generatorRef.current;
     const next = gen.next(choice);
     setProgress((prev) => ({ ...prev, current: prev.current + 1 }));
+    setCanUndo(true);
 
     if (next.done) {
       setResults(next.value);
@@ -203,12 +213,40 @@ function App() {
     }
   }, []);
 
+  const handleUndo = useCallback(() => {
+    const history = choiceHistoryRef.current;
+    if (history.length === 0) return;
+
+    const newHistory = history.slice(0, -1);
+    choiceHistoryRef.current = newHistory;
+
+    const gen = mergeSortGenerator(shuffledSongsRef.current);
+    generatorRef.current = gen;
+
+    // Advance generator to the first comparison pair before replaying choices
+    let pair = gen.next();
+    for (const choice of newHistory) {
+      pair = gen.next(choice);
+    }
+
+    setCurrentPair(pair.value);
+    setProgress((prev) => ({ ...prev, current: Math.max(0, prev.current - 1) }));
+    setCanUndo(newHistory.length > 0);
+  }, []);
+
+  const handleSortAgain = useCallback(() => {
+    startSorting(sortPoolRef.current, userName);
+  }, [startSorting, userName]);
+
   const handleRestart = useCallback(() => {
     setPhase("welcome");
     setCurrentPair(null);
     setResults([]);
     setProgress({ current: 0, total: 0 });
     setUserName("");
+    setCanUndo(false);
+    shuffledSongsRef.current = [];
+    choiceHistoryRef.current = [];
   }, []);
 
   if (loading) {
@@ -240,11 +278,13 @@ function App() {
         <Comparison
           pair={currentPair}
           onChoice={handleChoice}
+          onUndo={handleUndo}
+          canUndo={canUndo}
           progress={progress}
         />
       )}
       {phase === "results" && (
-        <Results results={results} userName={userName} onRestart={handleRestart} />
+        <Results results={results} userName={userName} onRestart={handleRestart} onSortAgain={handleSortAgain} />
       )}
     </div>
   );
