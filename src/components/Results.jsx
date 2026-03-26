@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useMemo } from "react";
+import React, { useState, useRef, useCallback, useMemo, useEffect } from "react";
 import html2canvas from "html2canvas";
 
 const MEDAL = ["🥇", "🥈", "🥉"];
@@ -116,6 +116,15 @@ function Results({ results, onRestart }) {
   const [copyStatus, setCopyStatus] = useState("idle"); // idle | copied | failed
   const [saveStatus, setSaveStatus] = useState("idle"); // idle | saving | failed
   const imageRef = useRef(null);
+  const copyTimerRef = useRef(null);
+  const saveTimerRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      clearTimeout(copyTimerRef.current);
+      clearTimeout(saveTimerRef.current);
+    };
+  }, []);
 
   const INITIAL_COUNT = 10;
   const showExpand = results.length > INITIAL_COUNT;
@@ -135,11 +144,11 @@ function Results({ results, onRestart }) {
     try {
       await navigator.clipboard.writeText(text);
       setCopyStatus("copied");
-      setTimeout(() => setCopyStatus("idle"), 2000);
     } catch {
       setCopyStatus("failed");
-      setTimeout(() => setCopyStatus("idle"), 2000);
     }
+    clearTimeout(copyTimerRef.current);
+    copyTimerRef.current = setTimeout(() => setCopyStatus("idle"), 2000);
   }, [results]);
 
   const handleSaveImage = useCallback(async () => {
@@ -158,7 +167,8 @@ function Results({ results, onRestart }) {
       setSaveStatus("idle");
     } catch {
       setSaveStatus("failed");
-      setTimeout(() => setSaveStatus("idle"), 2000);
+      clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = setTimeout(() => setSaveStatus("idle"), 2000);
     }
   }, [saveStatus]);
 
