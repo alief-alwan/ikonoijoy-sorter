@@ -161,6 +161,7 @@ function App() {
   const [currentPair, setCurrentPair] = useState(null);
   const [results, setResults] = useState([]);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
+  const [userName, setUserName] = useState("");
   const generatorRef = useRef(null);
 
   useEffect(() => {
@@ -170,7 +171,8 @@ function App() {
       .finally(() => setLoading(false));
   }, []);
 
-  const startSorting = useCallback((songsToSort) => {
+  const startSorting = useCallback((songsToSort, name) => {
+    setUserName(name || "");
     const shuffled = shuffleArray(songsToSort);
     const total = estimateComparisons(shuffled.length);
     setProgress({ current: 0, total });
@@ -206,6 +208,7 @@ function App() {
     setCurrentPair(null);
     setResults([]);
     setProgress({ current: 0, total: 0 });
+    setUserName("");
   }, []);
 
   if (loading) {
@@ -241,7 +244,7 @@ function App() {
         />
       )}
       {phase === "results" && (
-        <Results results={results} onRestart={handleRestart} />
+        <Results results={results} userName={userName} onRestart={handleRestart} />
       )}
     </div>
   );

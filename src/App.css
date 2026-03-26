@@ -61,6 +61,33 @@ body {
   opacity: 0.9;
 }
 
+.name-input-wrapper {
+  margin-bottom: 1rem;
+}
+
+.name-input {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 300px;
+  text-align: center;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.name-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.name-input:focus {
+  outline: none;
+  border-color: #e94560;
+  background: rgba(255, 255, 255, 0.15);
+}
+
 .group-filters {
   display: flex;
   flex-wrap: wrap;

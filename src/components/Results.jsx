@@ -3,7 +3,7 @@ import html2canvas from "html2canvas";
 
 const MEDAL = ["🥇", "🥈", "🥉"];
 
-function Results({ results, onRestart }) {
+function Results({ results, userName, onRestart }) {
   const [expanded, setExpanded] = useState(false);
   const [copyStatus, setCopyStatus] = useState("idle"); // idle | copied | failed
   const [saveStatus, setSaveStatus] = useState("idle"); // idle | saving | failed
@@ -31,12 +31,32 @@ function Results({ results, onRestart }) {
           `#${i + 1} ${song.title}${song.romajiTitle ? ` (${song.romajiTitle})` : ""} — ${song.group}`
       )
       .join("\n");
+    let success = false;
     try {
-      await navigator.clipboard.writeText(text);
-      setCopyStatus("copied");
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+        success = true;
+      }
     } catch {
-      setCopyStatus("failed");
+      /* fall through to fallback */
     }
+    if (!success) {
+      try {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.setAttribute("aria-hidden", "true");
+        textarea.style.position = "fixed";
+        textarea.style.left = "-9999px";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        success = document.execCommand("copy");
+        document.body.removeChild(textarea);
+      } catch {
+        success = false;
+      }
+    }
+    setCopyStatus(success ? "copied" : "failed");
     clearTimeout(copyTimerRef.current);
     copyTimerRef.current = setTimeout(() => setCopyStatus("idle"), 2000);
   }, [results]);
@@ -51,7 +71,7 @@ function Results({ results, onRestart }) {
         useCORS: true,
       });
       const link = document.createElement("a");
-      link.download = "my-top-10.png";
+      link.download = `${userName ? `${userName}s-` : "my-"}top-10.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
       setSaveStatus("idle");
@@ -60,11 +80,11 @@ function Results({ results, onRestart }) {
       clearTimeout(saveTimerRef.current);
       saveTimerRef.current = setTimeout(() => setSaveStatus("idle"), 2000);
     }
-  }, [saveStatus]);
+  }, [saveStatus, userName]);
 
   return (
     <div className="results">
-      <h2>🏆 Your Ranking</h2>
+      <h2>🏆 {userName ? `${userName}'s Ranking` : "Your Ranking"}</h2>
 
       {/* ── Top 3 Podium ── */}
       {results.length >= 3 && (
@@ -91,7 +111,7 @@ function Results({ results, onRestart }) {
 
       {/* ── Saveable Top 10 Card ── */}
       <div className="save-card" ref={imageRef}>
-        <h3 className="save-card-title">🏆 My Top 10</h3>
+        <h3 className="save-card-title">🏆 {userName ? `${userName}'s Top 10` : "My Top 10"}</h3>
         <ol className="save-card-list">
           {results.slice(0, 10).map((song, index) => (
             <li key={song.id} className="save-card-item">
