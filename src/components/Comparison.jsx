@@ -48,6 +48,9 @@ function Comparison({ pair, onChoice, onUndo, canUndo, progress }) {
       } else if (e.key === "ArrowRight") {
         e.preventDefault();
         onChoice("right");
+      } else if (e.key === " ") {
+        e.preventDefault();
+        handleSkip();
       } else if (e.key.toLowerCase() === "z" || e.key.toLowerCase() === "u") {
         e.preventDefault();
         if (canUndo) onUndo();
@@ -55,7 +58,7 @@ function Comparison({ pair, onChoice, onUndo, canUndo, progress }) {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onChoice, onUndo, canUndo]);
+  }, [onChoice, onUndo, canUndo, handleSkip]);
 
   return (
     <div className="comparison">
@@ -101,7 +104,7 @@ function Comparison({ pair, onChoice, onUndo, canUndo, progress }) {
       </div>
 
       <p className="keyboard-hint">
-        ← → arrow keys to choose &nbsp;·&nbsp; Z to undo
+        ← → arrow keys to choose &nbsp;·&nbsp; Space to skip &nbsp;·&nbsp; Z to undo
       </p>
     </div>
   );
