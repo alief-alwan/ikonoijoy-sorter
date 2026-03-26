@@ -3,6 +3,7 @@ import React, { useState } from "react";
 function Welcome({ songs, onStart }) {
   const groups = [...new Set(songs.map((s) => s.group))];
   const [selectedGroups, setSelectedGroups] = useState(new Set(groups));
+  const [userName, setUserName] = useState("");
 
   const toggleGroup = (group) => {
     setSelectedGroups((prev) => {
@@ -20,9 +21,20 @@ function Welcome({ songs, onStart }) {
       <h2>Welcome!</h2>
       <p>
         Rank IKONOIJOY songs by choosing your favorite — two at a time.
-        <br />
-        Select which groups to include:
       </p>
+
+      <div className="name-input-wrapper">
+        <input
+          type="text"
+          className="name-input"
+          placeholder="Enter your name (optional)"
+          value={userName}
+          onChange={(e) => setUserName(e.target.value)}
+          maxLength={30}
+        />
+      </div>
+
+      <p>Select which groups to include:</p>
 
       <div className="group-filters">
         {groups.map((group) => (
@@ -41,7 +53,7 @@ function Welcome({ songs, onStart }) {
 
       <button
         className="btn-start"
-        onClick={() => onStart(filteredSongs)}
+        onClick={() => onStart(filteredSongs, userName.trim())}
         disabled={filteredSongs.length < 2}
       >
         Start Sorting!

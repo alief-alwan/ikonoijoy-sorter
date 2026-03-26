@@ -3,7 +3,7 @@ import html2canvas from "html2canvas";
 
 const MEDAL = ["🥇", "🥈", "🥉"];
 
-function Results({ results, onRestart }) {
+function Results({ results, userName, onRestart }) {
   const [expanded, setExpanded] = useState(false);
   const [copyStatus, setCopyStatus] = useState("idle"); // idle | copied | failed
   const [saveStatus, setSaveStatus] = useState("idle"); // idle | saving | failed
@@ -71,7 +71,7 @@ function Results({ results, onRestart }) {
         useCORS: true,
       });
       const link = document.createElement("a");
-      link.download = "my-top-10.png";
+      link.download = `${userName ? `${userName}s-` : "my-"}top-10.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
       setSaveStatus("idle");
@@ -80,11 +80,11 @@ function Results({ results, onRestart }) {
       clearTimeout(saveTimerRef.current);
       saveTimerRef.current = setTimeout(() => setSaveStatus("idle"), 2000);
     }
-  }, [saveStatus]);
+  }, [saveStatus, userName]);
 
   return (
     <div className="results">
-      <h2>🏆 Your Ranking</h2>
+      <h2>🏆 {userName ? `${userName}'s Ranking` : "Your Ranking"}</h2>
 
       {/* ── Top 3 Podium ── */}
       {results.length >= 3 && (
@@ -111,7 +111,7 @@ function Results({ results, onRestart }) {
 
       {/* ── Saveable Top 10 Card ── */}
       <div className="save-card" ref={imageRef}>
-        <h3 className="save-card-title">🏆 My Top 10</h3>
+        <h3 className="save-card-title">🏆 {userName ? `${userName}'s Top 10` : "My Top 10"}</h3>
         <ol className="save-card-list">
           {results.slice(0, 10).map((song, index) => (
             <li key={song.id} className="save-card-item">
