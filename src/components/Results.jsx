@@ -113,8 +113,8 @@ function GroupDistribution({ results }) {
 
 function Results({ results, onRestart }) {
   const [expanded, setExpanded] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const [copyStatus, setCopyStatus] = useState("idle"); // idle | copied | failed
+  const [saveStatus, setSaveStatus] = useState("idle"); // idle | saving | failed
   const imageRef = useRef(null);
 
   const INITIAL_COUNT = 10;
@@ -134,16 +134,17 @@ function Results({ results, onRestart }) {
       .join("\n");
     try {
       await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      setCopyStatus("copied");
+      setTimeout(() => setCopyStatus("idle"), 2000);
     } catch {
-      /* clipboard not available */
+      setCopyStatus("failed");
+      setTimeout(() => setCopyStatus("idle"), 2000);
     }
   }, [results]);
 
   const handleSaveImage = useCallback(async () => {
-    if (!imageRef.current || saving) return;
-    setSaving(true);
+    if (!imageRef.current || saveStatus === "saving") return;
+    setSaveStatus("saving");
     try {
       const canvas = await html2canvas(imageRef.current, {
         backgroundColor: "#1a1a2e",
@@ -154,12 +155,12 @@ function Results({ results, onRestart }) {
       link.download = "my-top-10.png";
       link.href = canvas.toDataURL("image/png");
       link.click();
+      setSaveStatus("idle");
     } catch {
-      /* save failed silently */
-    } finally {
-      setSaving(false);
+      setSaveStatus("failed");
+      setTimeout(() => setSaveStatus("idle"), 2000);
     }
-  }, [saving]);
+  }, [saveStatus]);
 
   return (
     <div className="results">
@@ -232,12 +233,20 @@ function Results({ results, onRestart }) {
         <button
           className="btn-action"
           onClick={handleSaveImage}
-          disabled={saving}
+          disabled={saveStatus === "saving"}
         >
-          {saving ? "Saving…" : "📸 Save Top 10 as Image"}
+          {saveStatus === "saving"
+            ? "Saving…"
+            : saveStatus === "failed"
+              ? "❌ Save Failed"
+              : "📸 Save Top 10 as Image"}
         </button>
         <button className="btn-action" onClick={handleCopy}>
-          {copied ? "✅ Copied!" : "📋 Copy Results"}
+          {copyStatus === "copied"
+            ? "✅ Copied!"
+            : copyStatus === "failed"
+              ? "❌ Copy Failed"
+              : "📋 Copy Results"}
         </button>
       </div>
 
@@ -247,7 +256,13 @@ function Results({ results, onRestart }) {
         {displayResults.map((song, index) => (
           <li
             key={song.id}
-            className={`result-item${index < 3 ? " result-top3" : ""}${index < 5 ? " result-top5" : ""}`}
+            className={[
+              "result-item",
+              index < 3 && "result-top3",
+              index < 5 && "result-top5",
+            ]
+              .filter(Boolean)
+              .join(" ")}
           >
             <span className="rank">
               {index < 3 ? MEDAL[index] : `#${index + 1}`}
