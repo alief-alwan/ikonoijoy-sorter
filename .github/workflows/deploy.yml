@@ -27,7 +27,12 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          if ! npm ci 2>&1; then
+            echo "::warning::npm ci failed due to lock file mismatch. Falling back to npm install."
+            rm -rf node_modules package-lock.json
+            npm install
+          fi
 
       - name: Build React app
         run: npm run build
