@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useCallback } from "react";
 
 function SongCard({ song, side, onChoice }) {
   return (
@@ -30,10 +30,29 @@ function SongCard({ song, side, onChoice }) {
   );
 }
 
-function Comparison({ pair, onChoice, progress }) {
+function Comparison({ pair, onChoice, onUndo, canUndo, progress }) {
   const percentage = progress.total
     ? Math.round((progress.current / progress.total) * 100)
     : 0;
+
+  const handleSkip = useCallback(() => {
+    onChoice(Math.random() < 0.5 ? "left" : "right");
+  }, [onChoice]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.isContentEditable) return;
+      if (e.key === "ArrowLeft") {
+        onChoice("left");
+      } else if (e.key === "ArrowRight") {
+        onChoice("right");
+      } else if (e.key.toLowerCase() === "z" || e.key.toLowerCase() === "u") {
+        if (canUndo) onUndo();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onChoice, onUndo, canUndo]);
 
   return (
     <div className="comparison">
@@ -59,6 +78,28 @@ function Comparison({ pair, onChoice, progress }) {
         <span className="vs">VS</span>
         <SongCard song={pair.right} side="right" onChoice={onChoice} />
       </div>
+
+      <div className="comparison-actions">
+        <button
+          className="btn-skip"
+          onClick={handleSkip}
+          title="Randomly pick one and move on"
+        >
+          🎲 Skip
+        </button>
+        <button
+          className="btn-undo"
+          onClick={onUndo}
+          disabled={!canUndo}
+          title="Undo last choice"
+        >
+          ↩ Undo
+        </button>
+      </div>
+
+      <p className="keyboard-hint">
+        ← → arrow keys to choose &nbsp;·&nbsp; Z to undo
+      </p>
     </div>
   );
 }
