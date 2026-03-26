@@ -1,115 +1,7 @@
-import React, { useState, useRef, useCallback, useMemo, useEffect } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import html2canvas from "html2canvas";
 
 const MEDAL = ["🥇", "🥈", "🥉"];
-
-function generateFunFacts(results) {
-  const facts = [];
-  if (results.length === 0) return facts;
-
-  const top = results[0];
-  facts.push(`Your #1 song is "${top.title}" from ${top.group}!`);
-
-  const topN = (n) => results.slice(0, Math.min(n, results.length));
-
-  // Top 3 same group
-  const top3 = topN(3);
-  if (top3.length === 3) {
-    const groups3 = new Set(top3.map((s) => s.group));
-    if (groups3.size === 1) {
-      facts.push(
-        `Your entire podium is ${top3[0].group} — you're a true fan! 🎤`
-      );
-    }
-  }
-
-  // Group counts in top 10
-  const top10 = topN(10);
-  const groupCounts = {};
-  for (const song of top10) {
-    groupCounts[song.group] = (groupCounts[song.group] || 0) + 1;
-  }
-
-  const dominant = Object.entries(groupCounts).sort((a, b) => b[1] - a[1])[0];
-  if (dominant && dominant[1] >= 2) {
-    facts.push(
-      `${dominant[0]} leads your top 10 with ${dominant[1]} song${dominant[1] > 1 ? "s" : ""}!`
-    );
-  }
-
-  // How many groups in top 5
-  const top5 = topN(5);
-  const groups5 = new Set(top5.map((s) => s.group));
-  if (groups5.size === top5.length && top5.length >= 3) {
-    facts.push("Your top 5 features great variety across groups! 🌈");
-  }
-
-  // Overall group distribution
-  const totalCounts = {};
-  for (const song of results) {
-    totalCounts[song.group] = (totalCounts[song.group] || 0) + 1;
-  }
-  const totalEntries = Object.entries(totalCounts).sort(
-    (a, b) => b[1] - a[1]
-  );
-  if (totalEntries.length > 1) {
-    const [topGroup, topCount] = totalEntries[0];
-    const pct = Math.round((topCount / results.length) * 100);
-    if (pct >= 40) {
-      facts.push(
-        `${topGroup} makes up ${pct}% of all songs you ranked — clearly a favorite!`
-      );
-    }
-  }
-
-  // Bottom-ranked surprise
-  if (results.length >= 10) {
-    const lastSong = results[results.length - 1];
-    facts.push(
-      `"${lastSong.title}" came in last at #${results.length}. Better luck next time! 😅`
-    );
-  }
-
-  return facts;
-}
-
-function GroupDistribution({ results }) {
-  const distribution = useMemo(() => {
-    const counts = {};
-    for (const song of results) {
-      counts[song.group] = (counts[song.group] || 0) + 1;
-    }
-    return Object.entries(counts)
-      .map(([group, count]) => ({
-        group,
-        count,
-        pct: Math.round((count / results.length) * 100),
-      }))
-      .sort((a, b) => b.count - a.count);
-  }, [results]);
-
-  return (
-    <div className="group-distribution">
-      <h3>📊 Group Distribution</h3>
-      <div className="distribution-bars">
-        {distribution.map(({ group, count, pct }) => (
-          <div key={group} className="distribution-row">
-            <span className="distribution-label">{group}</span>
-            <div className="distribution-track">
-              <div
-                className="distribution-fill"
-                style={{ width: `${pct}%` }}
-              />
-            </div>
-            <span className="distribution-value">
-              {count} ({pct}%)
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function Results({ results, onRestart }) {
   const [expanded, setExpanded] = useState(false);
@@ -131,8 +23,6 @@ function Results({ results, onRestart }) {
   const displayResults = expanded
     ? results
     : results.slice(0, INITIAL_COUNT);
-
-  const funFacts = useMemo(() => generateFunFacts(results), [results]);
 
   const handleCopy = useCallback(async () => {
     const text = results
@@ -198,21 +88,6 @@ function Results({ results, onRestart }) {
           })}
         </div>
       )}
-
-      {/* ── Fun Facts ── */}
-      {funFacts.length > 0 && (
-        <div className="fun-facts">
-          <h3>✨ Fun Facts</h3>
-          <ul>
-            {funFacts.map((fact, i) => (
-              <li key={i}>{fact}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* ── Group Distribution ── */}
-      <GroupDistribution results={results} />
 
       {/* ── Saveable Top 10 Card ── */}
       <div className="save-card" ref={imageRef}>
