@@ -72,6 +72,9 @@ async function fetchSongsForGroup(group) {
           !titleLower.includes("off vocal") &&
           !titleLower.includes("instrumental") &&
           !titleLower.includes("inst.") &&
+          !titleLower.includes("tv size") &&
+          !titleLower.includes("tvサイズ") &&
+          !titleLower.includes("full size") &&
           !/\blive\b/.test(titleLower) &&
           !/\bconcert\b/.test(titleLower) &&
           !/\btour\b/.test(titleLower) &&
