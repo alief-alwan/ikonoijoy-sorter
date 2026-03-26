@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
+import { toRomaji } from "wanakana";
 import Welcome from "./components/Welcome";
 import Comparison from "./components/Comparison";
 import Results from "./components/Results";
@@ -52,15 +53,21 @@ async function fetchSongsForGroup(group) {
           track.artistName.includes(group.name) ||
           track.artistName.includes(group.searchName)
       )
-      .map((track) => ({
-        id: track.trackId,
-        title: track.trackName,
-        group: group.name,
-        coverArt: track.artworkUrl100
-          ? track.artworkUrl100.replace("100x100bb", "300x300bb")
-          : null,
-        previewUrl: track.previewUrl,
-      }));
+      .map((track) => {
+        const title = track.trackName;
+        const hasJapanese = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]/.test(title);
+        const romaji = hasJapanese ? toRomaji(title) : null;
+        return {
+          id: track.trackId,
+          title,
+          romajiTitle: romaji,
+          group: group.name,
+          coverArt: track.artworkUrl100
+            ? track.artworkUrl100.replace("100x100bb", "300x300bb")
+            : null,
+          previewUrl: track.previewUrl,
+        };
+      });
   } catch (error) {
     console.error(`Failed to fetch data for ${group.name}:`, error);
     return [];

@@ -18,6 +18,9 @@ function Results({ results, onRestart }) {
             )}
             <div className="result-info">
               <span className="song-title">{song.title}</span>
+              {song.romajiTitle && (
+                <span className="song-romaji">{song.romajiTitle}</span>
+              )}
               <span className="song-meta">{song.group}</span>
             </div>
             {song.previewUrl && (
