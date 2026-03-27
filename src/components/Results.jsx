@@ -157,7 +157,7 @@ function Results({ results, userName, onRestart, onSortAgain }) {
 
       {/* ── Full Ranking List ── */}
       <h3 className="full-ranking-heading">Full Ranking</h3>
-      <ol className="results-list">
+      <ol className={`results-list${expanded ? " results-list--expanded" : ""}`}>
         {displayResults.map((song, index) => (
           <li
             key={song.id}
