@@ -28,6 +28,11 @@ const SYMBOL_ONLY = /^[^\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]+$/;
 // CJK kanji codepoint ranges that wanakana cannot convert to romaji
 const CJK_KANJI_RE = /[\u3400-\u9FFF\uF900-\uFAFF]/g;
 
+// Small ya/yu/yo (yōon) — hiragana ゃゅょ and katakana ャュョ.
+// These characters MUST immediately follow the consonant kana they modify
+// in the same string for wanakana to produce the correct compound sound.
+const SMALL_YAYUYO_RE = /^[ゃゅょャュョ]/;
+
 /**
  * Convert a Japanese text string (including kanji) to word-spaced,
  * title-cased romaji.
@@ -95,6 +100,25 @@ export async function convertToRomaji(text) {
         const tsu = last.slice(-1);
         parts[parts.length - 1] = last.slice(0, -1);
         words[i + 1].parts.unshift(tsu);
+      }
+    }
+
+    // Fix yōon (ゃ/ゅ/ょ/ャ/ュ/ョ) at word-group boundaries.
+    // A small ya/yu/yo always modifies the consonant kana that precedes it.
+    // If a group's reading starts with one, move it to the end of the previous
+    // group so wanakana converts the compound sound correctly
+    // (e.g. "kya", not "ki" + "ya").
+    for (let i = 1; i < words.length; i++) {
+      const nextParts = words[i].parts;
+      const first = nextParts[0];
+      if (first && SMALL_YAYUYO_RE.test(first)) {
+        const yoon = first.charAt(0);
+        nextParts[0] = first.slice(1);
+        if (nextParts[0] === "") nextParts.splice(0, 1);
+        const prevParts = words[i - 1].parts;
+        if (prevParts.length > 0) {
+          prevParts[prevParts.length - 1] += yoon;
+        }
       }
     }
 
