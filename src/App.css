@@ -330,10 +330,9 @@ body {
   position: absolute;
   left: -9999px;
   top: 0;
-  width: 1280px;
   height: 720px;
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-  padding: 20px 24px 16px;
+  padding: 20px 24px 20px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -352,9 +351,10 @@ body {
   flex: 1;
   min-height: 0;
   display: grid;
-  gap: 6px;
+  gap: 8px;
   list-style: none;
-  overflow: hidden;
+  padding: 0;
+  margin: 0;
 }
 
 .save-all-card-item {
@@ -362,13 +362,11 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 3px;
-  padding: 5px 4px 4px;
+  padding: 6px 5px 5px;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.1);
   text-align: center;
-  overflow: hidden;
-  min-height: 0;
 }
 
 .save-all-card-item.save-all-top3 {
@@ -391,9 +389,9 @@ body {
 }
 
 .save-all-art {
-  width: 100%;
   flex: 1;
   min-height: 0;
+  width: 100%;
   object-fit: cover;
   border-radius: 5px;
 }

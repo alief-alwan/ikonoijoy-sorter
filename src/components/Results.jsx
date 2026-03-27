@@ -90,7 +90,7 @@ function Results({ results, userName, onRestart, onSortAgain }) {
     if (!allImageRef.current || saveAllStatus === "saving") return;
     setSaveAllStatus("saving");
     try {
-      // scale 3 × 1280×720 CSS px = 3840×2160 output (4K UHD 16:9)
+      // scale 3 × 720px CSS height = 2160px output height; width auto-sizes to content
       const canvas = await html2canvas(allImageRef.current, {
         backgroundColor: "#1a1a2e",
         scale: 3,
@@ -256,21 +256,31 @@ function Results({ results, userName, onRestart, onSortAgain }) {
         </button>
       </div>
 
-      {/* ── Hidden Full-Ranking Card for Image Export (1280×720, 16:9) ── */}
+      {/* ── Hidden Full-Ranking Card for Image Export (720px tall, auto width) ── */}
       {(() => {
-        // Distribute songs into columns so everything fills a 16:9 frame
-        const allCols = Math.max(2, Math.ceil(Math.sqrt(results.length * (16 / 9))));
-        const allRows = Math.ceil(results.length / allCols);
+        // Fix the number of rows so the card height stays at 720px;
+        // columns (and therefore width) grow to fit all songs.
+        const CELL_W = 130; // px width per grid cell
+        const GAP = 8;      // px gap between cells
+        const PAD_X = 24;   // px horizontal padding on each side
+        const allRows = Math.max(2, Math.ceil(Math.sqrt(results.length * (9 / 16))));
+        const allCols = Math.ceil(results.length / allRows);
+        const cardWidth = allCols * CELL_W + (allCols - 1) * GAP + PAD_X * 2;
         return (
-          <div className="save-all-card" ref={allImageRef} aria-hidden="true">
+          <div
+            className="save-all-card"
+            ref={allImageRef}
+            aria-hidden="true"
+            style={{ width: cardWidth }}
+          >
             <h3 className="save-all-card-title">
               🏆 {userName ? `${userName}'s Full Ranking` : "My Full Ranking"}
             </h3>
             <ol
               className="save-all-card-grid"
               style={{
-                gridTemplateColumns: `repeat(${allCols}, 1fr)`,
                 gridTemplateRows: `repeat(${allRows}, 1fr)`,
+                gridTemplateColumns: `repeat(${allCols}, ${CELL_W}px)`,
               }}
             >
               {results.map((song, index) => (
