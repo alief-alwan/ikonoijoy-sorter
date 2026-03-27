@@ -25,6 +25,9 @@ export function initTokenizer() {
 // Matches strings containing only symbols/punctuation (no word chars or kana/kanji)
 const SYMBOL_ONLY = /^[^\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]+$/;
 
+// CJK kanji codepoint ranges that wanakana cannot convert to romaji
+const CJK_KANJI_RE = /[\u3400-\u9FFF\uF900-\uFAFF]/g;
+
 /**
  * Convert a Japanese text string (including kanji) to word-spaced,
  * title-cased romaji.
@@ -57,7 +60,11 @@ export async function convertToRomaji(text) {
       } else if (isKana(token.surface_form)) {
         reading = token.surface_form;
       } else {
-        reading = token.surface_form;
+        // No dict reading and surface is not pure kana.
+        // Strip CJK kanji — wanakana cannot convert them and they would
+        // appear unconverted in the output. ASCII, Latin, and punctuation
+        // are kept because wanakana passes them through unchanged.
+        reading = token.surface_form.replace(CJK_KANJI_RE, "");
       }
 
       // Determine whether this token attaches to the previous word
@@ -73,6 +80,21 @@ export async function convertToRomaji(text) {
         words[words.length - 1].parts.push(reading);
       } else {
         words.push({ parts: [reading], capitalize: pos !== "助詞" });
+      }
+    }
+
+    // Fix geminate consonant (っ/ッ) at word-group boundaries.
+    // wanakana silently drops a trailing small-tsu that has no following
+    // character in the same string (e.g. toRomaji("バッ") === "ba").
+    // Move it to the start of the next group so wanakana sees the consonant
+    // it must double.
+    for (let i = 0; i < words.length - 1; i++) {
+      const parts = words[i].parts;
+      const last = parts[parts.length - 1];
+      if (last.length > 0 && (last.endsWith("っ") || last.endsWith("ッ"))) {
+        const tsu = last.slice(-1);
+        parts[parts.length - 1] = last.slice(0, -1);
+        words[i + 1].parts.unshift(tsu);
       }
     }
 
