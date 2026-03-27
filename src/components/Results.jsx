@@ -278,7 +278,7 @@ function Results({ results, userName, onRestart, onSortAgain }) {
             <ol
               className="save-all-card-grid"
               style={{
-                gridTemplateRows: `repeat(${allRows}, ${CELL_H}px)`,
+                gridTemplateRows: `repeat(${allRows}, minmax(${CELL_H}px, auto))`,
                 gridTemplateColumns: `repeat(${allCols}, ${CELL_W}px)`,
               }}
             >
