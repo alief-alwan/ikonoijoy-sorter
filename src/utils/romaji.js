@@ -28,10 +28,11 @@ const SYMBOL_ONLY = /^[^\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]+$/;
 // CJK kanji codepoint ranges that wanakana cannot convert to romaji
 const CJK_KANJI_RE = /[\u3400-\u9FFF\uF900-\uFAFF]/g;
 
-// Small ya/yu/yo (yōon) — hiragana ゃゅょ and katakana ャュョ.
-// These characters MUST immediately follow the consonant kana they modify
-// in the same string for wanakana to produce the correct compound sound.
-const SMALL_YAYUYO_RE = /^[ゃゅょャュョ]/;
+// Small yōon kana — small ya/yu/yo (ゃゅょ / ャュョ) plus small vowels
+// (ぁぃぅぇぉ / ァィゥェォ).  These characters MUST immediately follow the
+// consonant kana they modify in the same string for wanakana to produce
+// the correct compound sound (e.g. きゅ → kyu, ファ → fa).
+const SMALL_YOON_RE = /^[ゃゅょぁぃぅぇぉャュョァィゥェォ]/;
 
 /**
  * Convert a Japanese text string (including kanji) to word-spaced,
@@ -103,15 +104,17 @@ export async function convertToRomaji(text) {
       }
     }
 
-    // Fix yōon (ゃ/ゅ/ょ/ャ/ュ/ョ) at word-group boundaries.
-    // A small ya/yu/yo always modifies the consonant kana that precedes it.
+    // Fix yōon (small kana) at word-group boundaries.
+    // A small kana always modifies the consonant kana that precedes it.
     // If a group's reading starts with one, move it to the end of the previous
-    // group so wanakana converts the compound sound correctly
-    // (e.g. "kya", not "ki" + "ya").
-    for (let i = 1; i < words.length; i++) {
+    // group AND merge all remaining parts of that group into the previous one,
+    // so wanakana converts the full compound sound correctly in a single string
+    // (e.g. "kyunkawa", not "kyu" + "nkawa").  Iterate in reverse so splicing
+    // does not affect unvisited indices.
+    for (let i = words.length - 1; i >= 1; i--) {
       const nextParts = words[i].parts;
       const first = nextParts[0];
-      if (first && SMALL_YAYUYO_RE.test(first)) {
+      if (first && SMALL_YOON_RE.test(first)) {
         const yoon = first.charAt(0);
         nextParts[0] = first.slice(1);
         if (nextParts[0] === "") nextParts.splice(0, 1);
@@ -119,13 +122,27 @@ export async function convertToRomaji(text) {
         if (prevParts.length > 0) {
           prevParts[prevParts.length - 1] += yoon;
         }
+        // Merge all remaining parts into the previous group and remove this one.
+        prevParts.push(...nextParts);
+        words.splice(i, 1);
       }
     }
 
     // Convert each word group to romaji
     const romajiWords = words.map((word) => {
       const combined = word.parts.join("");
-      let romaji = kanaToRomaji(combined);
+      // Pre-process kana compounds that wanakana converts incorrectly.
+      // fu + small-vowel (ファ, フィ, フェ, フォ and hiragana equivalents):
+      // wanakana maps these as "fua"/"fyi"/"fye"/"fuo" instead of "fa"/"fi"/"fe"/"fo".
+      // Replacing the small vowel kana with its full-size equivalent preceded by
+      // the ASCII letter "f" lets wanakana produce the correct romaji while still
+      // allowing the chōonpu (ー) that follows to extend the vowel correctly.
+      const preprocessed = combined
+        .replace(/ファ/g, "fア").replace(/ふぁ/g, "fあ")
+        .replace(/フィ/g, "fイ").replace(/ふぃ/g, "fい")
+        .replace(/フェ/g, "fエ").replace(/ふぇ/g, "fえ")
+        .replace(/フォ/g, "fオ").replace(/ふぉ/g, "fお");
+      let romaji = kanaToRomaji(preprocessed);
       if (word.capitalize && romaji.length > 0) {
         romaji = romaji.charAt(0).toUpperCase() + romaji.slice(1);
       }
