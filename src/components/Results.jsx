@@ -7,14 +7,18 @@ function Results({ results, userName, onRestart, onSortAgain }) {
   const [expanded, setExpanded] = useState(false);
   const [copyStatus, setCopyStatus] = useState("idle"); // idle | copied | failed
   const [saveStatus, setSaveStatus] = useState("idle"); // idle | saving | failed
+  const [saveAllStatus, setSaveAllStatus] = useState("idle"); // idle | saving | failed
   const imageRef = useRef(null);
+  const allImageRef = useRef(null);
   const copyTimerRef = useRef(null);
   const saveTimerRef = useRef(null);
+  const saveAllTimerRef = useRef(null);
 
   useEffect(() => {
     return () => {
       clearTimeout(copyTimerRef.current);
       clearTimeout(saveTimerRef.current);
+      clearTimeout(saveAllTimerRef.current);
     };
   }, []);
 
@@ -82,6 +86,27 @@ function Results({ results, userName, onRestart, onSortAgain }) {
     }
   }, [saveStatus, userName]);
 
+  const handleSaveAllImage = useCallback(async () => {
+    if (!allImageRef.current || saveAllStatus === "saving") return;
+    setSaveAllStatus("saving");
+    try {
+      const canvas = await html2canvas(allImageRef.current, {
+        backgroundColor: "#1a1a2e",
+        scale: 2,
+        useCORS: true,
+      });
+      const link = document.createElement("a");
+      link.download = `${userName ? `${userName}s-` : "my-"}full-ranking.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+      setSaveAllStatus("idle");
+    } catch {
+      setSaveAllStatus("failed");
+      clearTimeout(saveAllTimerRef.current);
+      saveAllTimerRef.current = setTimeout(() => setSaveAllStatus("idle"), 2000);
+    }
+  }, [saveAllStatus, userName]);
+
   return (
     <div className="results">
       <h2>🏆 {userName ? `${userName}'s Ranking` : "Your Ranking"}</h2>
@@ -145,6 +170,17 @@ function Results({ results, userName, onRestart, onSortAgain }) {
             : saveStatus === "failed"
               ? "❌ Save Failed"
               : "📸 Save Top 10 as Image"}
+        </button>
+        <button
+          className="btn-action"
+          onClick={handleSaveAllImage}
+          disabled={saveAllStatus === "saving"}
+        >
+          {saveAllStatus === "saving"
+            ? "Saving…"
+            : saveAllStatus === "failed"
+              ? "❌ Save Failed"
+              : "🖼️ Save All Results as Image"}
         </button>
         <button className="btn-action" onClick={handleCopy}>
           {copyStatus === "copied"
@@ -217,6 +253,31 @@ function Results({ results, userName, onRestart, onSortAgain }) {
         <button className="btn-sort-again" onClick={onSortAgain}>
           🔄 Sort Again (Same Pool)
         </button>
+      </div>
+
+      {/* ── Hidden Full-Ranking Card for Image Export ── */}
+      <div className="save-all-card" ref={allImageRef} aria-hidden="true">
+        <h3 className="save-card-title">🏆 {userName ? `${userName}'s Full Ranking` : "My Full Ranking"}</h3>
+        <ol className="save-card-list">
+          {results.map((song, index) => (
+            <li key={song.id} className="save-card-item">
+              <span className="save-card-rank">
+                {index < 3 ? MEDAL[index] : `#${index + 1}`}
+              </span>
+              {song.coverArt && (
+                <img
+                  className="save-card-art"
+                  src={song.coverArt}
+                  alt={song.title}
+                />
+              )}
+              <div className="save-card-info">
+                <span className="save-card-song">{song.title}</span>
+                <span className="save-card-group">{song.group}</span>
+              </div>
+            </li>
+          ))}
+        </ol>
       </div>
     </div>
   );

@@ -325,6 +325,18 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* ── Hidden Full-Ranking Card for image export (off-screen) ── */
+.save-all-card {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  border-radius: 16px;
+  padding: 1.5rem 1.25rem;
+  width: 420px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: absolute;
+  left: -9999px;
+  top: 0;
+}
+
 .save-card-title {
   text-align: center;
   margin-bottom: 1rem;
