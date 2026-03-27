@@ -90,9 +90,10 @@ function Results({ results, userName, onRestart, onSortAgain }) {
     if (!allImageRef.current || saveAllStatus === "saving") return;
     setSaveAllStatus("saving");
     try {
+      // scale 1.5 × 1280×720 CSS px = 1920×1080 output (Full HD 16:9)
       const canvas = await html2canvas(allImageRef.current, {
         backgroundColor: "#1a1a2e",
-        scale: 2,
+        scale: 1.5,
         useCORS: true,
       });
       const link = document.createElement("a");
@@ -255,30 +256,52 @@ function Results({ results, userName, onRestart, onSortAgain }) {
         </button>
       </div>
 
-      {/* ── Hidden Full-Ranking Card for Image Export ── */}
-      <div className="save-all-card" ref={allImageRef} aria-hidden="true">
-        <h3 className="save-card-title">🏆 {userName ? `${userName}'s Full Ranking` : "My Full Ranking"}</h3>
-        <ol className="save-card-list">
-          {results.map((song, index) => (
-            <li key={song.id} className="save-card-item">
-              <span className="save-card-rank">
-                {index < 3 ? MEDAL[index] : `#${index + 1}`}
-              </span>
-              {song.coverArt && (
-                <img
-                  className="save-card-art"
-                  src={song.coverArt}
-                  alt={song.title}
-                />
-              )}
-              <div className="save-card-info">
-                <span className="save-card-song">{song.title}</span>
-                <span className="save-card-group">{song.group}</span>
-              </div>
-            </li>
-          ))}
-        </ol>
-      </div>
+      {/* ── Hidden Full-Ranking Card for Image Export (1280×720, 16:9) ── */}
+      {(() => {
+        // Distribute songs into columns so everything fills a 16:9 frame
+        const allCols = Math.max(2, Math.ceil(Math.sqrt(results.length * (16 / 9))));
+        const allRows = Math.ceil(results.length / allCols);
+        return (
+          <div className="save-all-card" ref={allImageRef} aria-hidden="true">
+            <h3 className="save-all-card-title">
+              🏆 {userName ? `${userName}'s Full Ranking` : "My Full Ranking"}
+            </h3>
+            <ol
+              className="save-all-card-grid"
+              style={{
+                gridTemplateColumns: `repeat(${allCols}, 1fr)`,
+                gridTemplateRows: `repeat(${allRows}, 1fr)`,
+              }}
+            >
+              {results.map((song, index) => (
+                <li
+                  key={song.id}
+                  className={[
+                    "save-all-card-item",
+                    index < 3 && "save-all-top3",
+                    index >= 3 && index < 5 && "save-all-top5",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                >
+                  <span className="save-all-rank">
+                    {index < 3 ? MEDAL[index] : `#${index + 1}`}
+                  </span>
+                  {song.coverArt && (
+                    <img
+                      className="save-all-art"
+                      src={song.coverArt}
+                      alt={song.title}
+                    />
+                  )}
+                  <span className="save-all-song">{song.title}</span>
+                  <span className="save-all-group">{song.group}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        );
+      })()}
     </div>
   );
 }

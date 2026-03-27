@@ -327,14 +327,97 @@ body {
 
 /* ── Hidden Full-Ranking Card for image export (off-screen) ── */
 .save-all-card {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-  border-radius: 16px;
-  padding: 1.5rem 1.25rem;
-  width: 420px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
   position: absolute;
   left: -9999px;
   top: 0;
+  width: 1280px;
+  height: 720px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  padding: 20px 24px 16px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  font-family: inherit;
+  color: #fff;
+}
+
+.save-all-card-title {
+  text-align: center;
+  font-size: 1.3rem;
+  margin: 0 0 12px;
+  flex-shrink: 0;
+}
+
+.save-all-card-grid {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  gap: 6px;
+  list-style: none;
+  overflow: hidden;
+}
+
+.save-all-card-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 5px 4px 4px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.save-all-card-item.save-all-top3 {
+  border-color: rgba(255, 215, 0, 0.4);
+  background: rgba(255, 215, 0, 0.06);
+}
+
+.save-all-card-item.save-all-top5 {
+  border-color: rgba(233, 69, 96, 0.35);
+  background: rgba(233, 69, 96, 0.06);
+}
+
+.save-all-rank {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #e94560;
+  align-self: flex-start;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.save-all-art {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.save-all-song {
+  font-size: 0.65rem;
+  font-weight: 500;
+  width: 100%;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: 1.2;
+  flex-shrink: 0;
+}
+
+.save-all-group {
+  font-size: 0.55rem;
+  opacity: 0.5;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
 }
 
 .save-card-title {
