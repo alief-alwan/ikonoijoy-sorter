@@ -7,14 +7,18 @@ function Results({ results, userName, onRestart, onSortAgain }) {
   const [expanded, setExpanded] = useState(false);
   const [copyStatus, setCopyStatus] = useState("idle"); // idle | copied | failed
   const [saveStatus, setSaveStatus] = useState("idle"); // idle | saving | failed
+  const [saveAllStatus, setSaveAllStatus] = useState("idle"); // idle | saving | failed
   const imageRef = useRef(null);
+  const allImageRef = useRef(null);
   const copyTimerRef = useRef(null);
   const saveTimerRef = useRef(null);
+  const saveAllTimerRef = useRef(null);
 
   useEffect(() => {
     return () => {
       clearTimeout(copyTimerRef.current);
       clearTimeout(saveTimerRef.current);
+      clearTimeout(saveAllTimerRef.current);
     };
   }, []);
 
@@ -82,6 +86,28 @@ function Results({ results, userName, onRestart, onSortAgain }) {
     }
   }, [saveStatus, userName]);
 
+  const handleSaveAllImage = useCallback(async () => {
+    if (!allImageRef.current || saveAllStatus === "saving") return;
+    setSaveAllStatus("saving");
+    try {
+      // scale 3 × 1280×720 CSS px = 3840×2160 output (4K UHD 16:9)
+      const canvas = await html2canvas(allImageRef.current, {
+        backgroundColor: "#1a1a2e",
+        scale: 3,
+        useCORS: true,
+      });
+      const link = document.createElement("a");
+      link.download = `${userName ? `${userName}s-` : "my-"}full-ranking.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+      setSaveAllStatus("idle");
+    } catch {
+      setSaveAllStatus("failed");
+      clearTimeout(saveAllTimerRef.current);
+      saveAllTimerRef.current = setTimeout(() => setSaveAllStatus("idle"), 2000);
+    }
+  }, [saveAllStatus, userName]);
+
   return (
     <div className="results">
       <h2>🏆 {userName ? `${userName}'s Ranking` : "Your Ranking"}</h2>
@@ -145,6 +171,17 @@ function Results({ results, userName, onRestart, onSortAgain }) {
             : saveStatus === "failed"
               ? "❌ Save Failed"
               : "📸 Save Top 10 as Image"}
+        </button>
+        <button
+          className="btn-action"
+          onClick={handleSaveAllImage}
+          disabled={saveAllStatus === "saving"}
+        >
+          {saveAllStatus === "saving"
+            ? "Saving…"
+            : saveAllStatus === "failed"
+              ? "❌ Save Failed"
+              : "🖼️ Save All Results as Image"}
         </button>
         <button className="btn-action" onClick={handleCopy}>
           {copyStatus === "copied"
@@ -218,6 +255,53 @@ function Results({ results, userName, onRestart, onSortAgain }) {
           🔄 Sort Again (Same Pool)
         </button>
       </div>
+
+      {/* ── Hidden Full-Ranking Card for Image Export (1280×720, 16:9) ── */}
+      {(() => {
+        // Distribute songs into columns so everything fills a 16:9 frame
+        const allCols = Math.max(2, Math.ceil(Math.sqrt(results.length * (16 / 9))));
+        const allRows = Math.ceil(results.length / allCols);
+        return (
+          <div className="save-all-card" ref={allImageRef} aria-hidden="true">
+            <h3 className="save-all-card-title">
+              🏆 {userName ? `${userName}'s Full Ranking` : "My Full Ranking"}
+            </h3>
+            <ol
+              className="save-all-card-grid"
+              style={{
+                gridTemplateColumns: `repeat(${allCols}, 1fr)`,
+                gridTemplateRows: `repeat(${allRows}, 1fr)`,
+              }}
+            >
+              {results.map((song, index) => (
+                <li
+                  key={song.id}
+                  className={[
+                    "save-all-card-item",
+                    index < 3 && "save-all-top3",
+                    index >= 3 && index < 5 && "save-all-top5",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                >
+                  <span className="save-all-rank">
+                    {index < 3 ? MEDAL[index] : `#${index + 1}`}
+                  </span>
+                  {song.coverArt && (
+                    <img
+                      className="save-all-art"
+                      src={song.coverArt}
+                      alt={song.title}
+                    />
+                  )}
+                  <span className="save-all-song">{song.title}</span>
+                  <span className="save-all-group">{song.group}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        );
+      })()}
     </div>
   );
 }
