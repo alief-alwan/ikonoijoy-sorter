@@ -258,9 +258,9 @@ function Results({ results, userName, onRestart, onSortAgain }) {
 
       {/* ── Hidden Full-Ranking Card for Image Export (720px tall, auto width) ── */}
       {(() => {
-        // Fix the number of rows so the card height stays at 720px;
-        // columns (and therefore width) grow to fit all songs.
+        // Calculate a grid layout that grows in both dimensions to fit all songs.
         const CELL_W = 130; // px width per grid cell
+        const CELL_H = 120; // px height per grid cell
         const GAP = 8;      // px gap between cells
         const PAD_X = 24;   // px horizontal padding on each side
         const allRows = Math.max(2, Math.ceil(Math.sqrt(results.length * (9 / 16))));
@@ -279,7 +279,7 @@ function Results({ results, userName, onRestart, onSortAgain }) {
             <ol
               className="save-all-card-grid"
               style={{
-                gridTemplateRows: `repeat(${allRows}, 1fr)`,
+                gridTemplateRows: `repeat(${allRows}, ${CELL_H}px)`,
                 gridTemplateColumns: `repeat(${allCols}, ${CELL_W}px)`,
               }}
             >

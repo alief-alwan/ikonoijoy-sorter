@@ -330,7 +330,7 @@ body {
   position: absolute;
   left: -9999px;
   top: 0;
-  height: 720px;
+  height: auto;
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
   padding: 20px 24px 20px;
   box-sizing: border-box;
@@ -348,8 +348,6 @@ body {
 }
 
 .save-all-card-grid {
-  flex: 1;
-  min-height: 0;
   display: grid;
   gap: 8px;
   list-style: none;
