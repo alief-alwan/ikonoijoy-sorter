@@ -71,7 +71,7 @@ function Results({ results, userName, onRestart, onSortAgain }) {
     try {
       const canvas = await html2canvas(imageRef.current, {
         backgroundColor: "#1a1a2e",
-        scale: 2,
+        scale: 1,
         useCORS: true,
       });
       const link = document.createElement("a");
@@ -92,7 +92,7 @@ function Results({ results, userName, onRestart, onSortAgain }) {
     try {
       const canvas = await html2canvas(allImageRef.current, {
         backgroundColor: "#1a1a2e",
-        scale: 2,
+        scale: 1,
         useCORS: true,
       });
       const link = document.createElement("a");
