@@ -71,7 +71,7 @@ function Results({ results, userName, onRestart, onSortAgain }) {
     try {
       const canvas = await html2canvas(imageRef.current, {
         backgroundColor: "#1a1a2e",
-        scale: 2,
+        scale: 1,
         useCORS: true,
       });
       const link = document.createElement("a");
@@ -90,10 +90,9 @@ function Results({ results, userName, onRestart, onSortAgain }) {
     if (!allImageRef.current || saveAllStatus === "saving") return;
     setSaveAllStatus("saving");
     try {
-      // scale 3 × 720px CSS height = 2160px output height; width auto-sizes to content
       const canvas = await html2canvas(allImageRef.current, {
         backgroundColor: "#1a1a2e",
-        scale: 3,
+        scale: 1,
         useCORS: true,
       });
       const link = document.createElement("a");
@@ -259,8 +258,8 @@ function Results({ results, userName, onRestart, onSortAgain }) {
       {/* ── Hidden Full-Ranking Card for Image Export (720px tall, auto width) ── */}
       {(() => {
         // Calculate a grid layout that grows in both dimensions to fit all songs.
-        const CELL_W = 130; // px width per grid cell
-        const CELL_H = 120; // px height per grid cell
+        const CELL_W = 100; // px width per grid cell
+        const CELL_H = 90;  // px height per grid cell
         const GAP = 8;      // px gap between cells
         const PAD_X = 24;   // px horizontal padding on each side
         const allRows = Math.max(2, Math.ceil(Math.sqrt(results.length * (9 / 16))));
