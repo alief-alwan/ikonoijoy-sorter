@@ -90,7 +90,7 @@ function Results({ results, userName, onRestart, onSortAgain }) {
     if (!allImageRef.current || saveAllStatus === "saving") return;
     setSaveAllStatus("saving");
     try {
-      // scale 3 × 1280×720 CSS px = 3840×2160 output (4K UHD 16:9)
+      // scale 3 × 1280px CSS width = 3840px output width; height auto-sizes to content
       const canvas = await html2canvas(allImageRef.current, {
         backgroundColor: "#1a1a2e",
         scale: 3,
@@ -256,11 +256,10 @@ function Results({ results, userName, onRestart, onSortAgain }) {
         </button>
       </div>
 
-      {/* ── Hidden Full-Ranking Card for Image Export (1280×720, 16:9) ── */}
+      {/* ── Hidden Full-Ranking Card for Image Export (1280px wide, auto height) ── */}
       {(() => {
-        // Distribute songs into columns so everything fills a 16:9 frame
+        // Distribute songs into columns so the grid is balanced
         const allCols = Math.max(2, Math.ceil(Math.sqrt(results.length * (16 / 9))));
-        const allRows = Math.ceil(results.length / allCols);
         return (
           <div className="save-all-card" ref={allImageRef} aria-hidden="true">
             <h3 className="save-all-card-title">
@@ -270,7 +269,6 @@ function Results({ results, userName, onRestart, onSortAgain }) {
               className="save-all-card-grid"
               style={{
                 gridTemplateColumns: `repeat(${allCols}, 1fr)`,
-                gridTemplateRows: `repeat(${allRows}, 1fr)`,
               }}
             >
               {results.map((song, index) => (
