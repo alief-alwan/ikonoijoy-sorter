@@ -330,8 +330,7 @@ body {
   position: absolute;
   left: -9999px;
   top: 0;
-  width: 1280px;
-  min-height: 720px;
+  height: 720px;
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
   padding: 20px 24px 20px;
   box-sizing: border-box;
@@ -349,6 +348,8 @@ body {
 }
 
 .save-all-card-grid {
+  flex: 1;
+  min-height: 0;
   display: grid;
   gap: 8px;
   list-style: none;
@@ -388,11 +389,11 @@ body {
 }
 
 .save-all-art {
+  flex: 1;
+  min-height: 0;
   width: 100%;
-  aspect-ratio: 1;
   object-fit: cover;
   border-radius: 5px;
-  flex-shrink: 0;
 }
 
 .save-all-song {
