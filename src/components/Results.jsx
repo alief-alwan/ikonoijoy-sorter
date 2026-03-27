@@ -90,10 +90,10 @@ function Results({ results, userName, onRestart, onSortAgain }) {
     if (!allImageRef.current || saveAllStatus === "saving") return;
     setSaveAllStatus("saving");
     try {
-      // scale 1.5 × 1280×720 CSS px = 1920×1080 output (Full HD 16:9)
+      // scale 3 × 1280×720 CSS px = 3840×2160 output (4K UHD 16:9)
       const canvas = await html2canvas(allImageRef.current, {
         backgroundColor: "#1a1a2e",
-        scale: 1.5,
+        scale: 3,
         useCORS: true,
       });
       const link = document.createElement("a");
