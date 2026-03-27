@@ -25,6 +25,14 @@ export function initTokenizer() {
 // Matches strings containing only symbols/punctuation (no word chars or kana/kanji)
 const SYMBOL_ONLY = /^[^\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]+$/;
 
+// CJK kanji codepoint ranges that wanakana cannot convert to romaji
+const CJK_KANJI_RE = /[\u3400-\u9FFF\uF900-\uFAFF]/g;
+
+// Small ya/yu/yo (yōon) — hiragana ゃゅょ and katakana ャュョ.
+// These characters MUST immediately follow the consonant kana they modify
+// in the same string for wanakana to produce the correct compound sound.
+const SMALL_YAYUYO_RE = /^[ゃゅょャュョ]/;
+
 /**
  * Convert a Japanese text string (including kanji) to word-spaced,
  * title-cased romaji.
@@ -57,7 +65,11 @@ export async function convertToRomaji(text) {
       } else if (isKana(token.surface_form)) {
         reading = token.surface_form;
       } else {
-        reading = token.surface_form;
+        // No dict reading and surface is not pure kana.
+        // Strip CJK kanji — wanakana cannot convert them and they would
+        // appear unconverted in the output. ASCII, Latin, and punctuation
+        // are kept because wanakana passes them through unchanged.
+        reading = token.surface_form.replace(CJK_KANJI_RE, "");
       }
 
       // Determine whether this token attaches to the previous word
@@ -73,6 +85,40 @@ export async function convertToRomaji(text) {
         words[words.length - 1].parts.push(reading);
       } else {
         words.push({ parts: [reading], capitalize: pos !== "助詞" });
+      }
+    }
+
+    // Fix geminate consonant (っ/ッ) at word-group boundaries.
+    // wanakana silently drops a trailing small-tsu that has no following
+    // character in the same string (e.g. toRomaji("バッ") === "ba").
+    // Move it to the start of the next group so wanakana sees the consonant
+    // it must double.
+    for (let i = 0; i < words.length - 1; i++) {
+      const parts = words[i].parts;
+      const last = parts[parts.length - 1];
+      if (last.length > 0 && (last.endsWith("っ") || last.endsWith("ッ"))) {
+        const tsu = last.slice(-1);
+        parts[parts.length - 1] = last.slice(0, -1);
+        words[i + 1].parts.unshift(tsu);
+      }
+    }
+
+    // Fix yōon (ゃ/ゅ/ょ/ャ/ュ/ョ) at word-group boundaries.
+    // A small ya/yu/yo always modifies the consonant kana that precedes it.
+    // If a group's reading starts with one, move it to the end of the previous
+    // group so wanakana converts the compound sound correctly
+    // (e.g. "kya", not "ki" + "ya").
+    for (let i = 1; i < words.length; i++) {
+      const nextParts = words[i].parts;
+      const first = nextParts[0];
+      if (first && SMALL_YAYUYO_RE.test(first)) {
+        const yoon = first.charAt(0);
+        nextParts[0] = first.slice(1);
+        if (nextParts[0] === "") nextParts.splice(0, 1);
+        const prevParts = words[i - 1].parts;
+        if (prevParts.length > 0) {
+          prevParts[prevParts.length - 1] += yoon;
+        }
       }
     }
 
