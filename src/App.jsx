@@ -184,7 +184,7 @@ function App() {
 
   useEffect(() => {
     Promise.all([
-      fetchAllSongs().catch((err) => { throw err; }),
+      fetchAllSongs(),
       fetchMembers().catch(() => []), // members are best-effort
     ])
       .then(([songData, memberData]) => {

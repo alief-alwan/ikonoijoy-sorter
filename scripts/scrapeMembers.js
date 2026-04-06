@@ -114,8 +114,8 @@ function parseInfobox(wikitext) {
   let d = 0;
   for (let i = 0; i < block.length; i++) {
     const ch = block[i];
-    if (ch === "{" && block[i + 1] === "{") { d++; current += ch; continue; }
-    if (ch === "}" && block[i + 1] === "}") { d--; current += ch; continue; }
+    if (ch === "{" && block[i + 1] === "{") { d++; current += "{{"; i++; continue; }
+    if (ch === "}" && block[i + 1] === "}") { d--; current += "}}"; i++; continue; }
     if (ch === "|" && d === 0) {
       parts.push(current.trim());
       current = "";
@@ -144,8 +144,8 @@ function cleanWikiValue(val) {
   val = val.replace(/\[\[(?:[^|\]]*\|)?([^\]]+)\]\]/g, "$1");
   // Remove {{…}} template calls
   val = val.replace(/\{\{[^}]*\}\}/g, "");
-  // Remove HTML tags
-  val = val.replace(/<[^>]+>/g, "");
+  // Remove HTML tags (including incomplete tags to prevent injection)
+  val = val.replace(/<[^>]*>/g, "").replace(/</g, "").replace(/>/g, "");
   // Remove wikitext formatting
   val = val.replace(/'{2,3}/g, "");
   // Collapse whitespace
