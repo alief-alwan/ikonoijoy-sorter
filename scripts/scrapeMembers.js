@@ -10,10 +10,11 @@
 
 const fs = require("fs");
 const path = require("path");
-const https = require("https");
 
 const OUT_FILE = path.resolve(__dirname, "../public/members.json");
 const WIKI_API = "https://jpop.fandom.com/api.php";
+const BROWSER_UA =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
 // ── Zodiac helpers ─────────────────────────────────────────────────────────
 const ZODIAC_RANGES = [
@@ -53,22 +54,14 @@ function zodiacFromDate(dateStr) {
 }
 
 // ── HTTP helper ────────────────────────────────────────────────────────────
-function fetchJson(url) {
-  return new Promise((resolve, reject) => {
-    https
-      .get(url, { headers: { "User-Agent": "ikonoijoy-sorter-scraper/1.0" } }, (res) => {
-        let data = "";
-        res.on("data", (chunk) => (data += chunk));
-        res.on("end", () => {
-          try {
-            resolve(JSON.parse(data));
-          } catch (e) {
-            reject(new Error("JSON parse error: " + e.message));
-          }
-        });
-      })
-      .on("error", reject);
+async function fetchJson(url) {
+  const response = await fetch(url, {
+    headers: { "User-Agent": BROWSER_UA },
   });
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status} ${response.statusText}`);
+  }
+  return response.json();
 }
 
 function buildApiUrl(params) {
