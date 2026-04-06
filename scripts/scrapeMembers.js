@@ -362,7 +362,7 @@ async function discoverCategories(groupName) {
       discovered.add(`Category:${cat["*"]}`);
     }
   } catch (e) {
-    // ignore — discovery is best-effort
+    console.warn(`  Category discovery for "${groupName}" failed: ${e.message}`);
   }
   return [...discovered];
 }
@@ -375,7 +375,10 @@ async function scrapeGroup(group) {
   const seen = new Set();
   const categoriesToTry = [];
   for (const cat of [...dynamic, ...group.categories]) {
-    if (!seen.has(cat)) { seen.add(cat); categoriesToTry.push(cat); }
+    if (!seen.has(cat)) {
+      seen.add(cat);
+      categoriesToTry.push(cat);
+    }
   }
   console.log(`  Trying categories: ${categoriesToTry.join(", ")}`);
 
