@@ -13,7 +13,8 @@
       "height": "159 cm",
       "bloodType": "A",
       "zodiac": "Capricorn",
-      "memberColor": "Red"
+      "memberColor": "Red",
+      "status": "active"
     },
     {
       "id": "elove-2",
@@ -26,7 +27,8 @@
       "height": "157 cm",
       "bloodType": "B",
       "zodiac": "Pisces",
-      "memberColor": "Yellow"
+      "memberColor": "Yellow",
+      "status": "active"
     },
     {
       "id": "elove-3",
@@ -39,7 +41,8 @@
       "height": "158 cm",
       "bloodType": "O",
       "zodiac": "Gemini",
-      "memberColor": "Lime Green"
+      "memberColor": "Lime Green",
+      "status": "active"
     },
     {
       "id": "elove-4",
@@ -52,7 +55,8 @@
       "height": "162 cm",
       "bloodType": "B",
       "zodiac": "Virgo",
-      "memberColor": "Coral Pink"
+      "memberColor": "Coral Pink",
+      "status": "active"
     },
     {
       "id": "elove-5",
@@ -65,7 +69,8 @@
       "height": "155 cm",
       "bloodType": "O",
       "zodiac": "Aquarius",
-      "memberColor": "Lavender"
+      "memberColor": "Lavender",
+      "status": "active"
     },
     {
       "id": "elove-6",
@@ -78,7 +83,8 @@
       "height": "156 cm",
       "bloodType": "A",
       "zodiac": "Leo",
-      "memberColor": "Orange"
+      "memberColor": "Orange",
+      "status": "active"
     },
     {
       "id": "elove-7",
@@ -91,7 +97,8 @@
       "height": "160 cm",
       "bloodType": "B",
       "zodiac": "Aries",
-      "memberColor": "Sky Blue"
+      "memberColor": "Sky Blue",
+      "status": "active"
     },
     {
       "id": "elove-8",
@@ -104,7 +111,8 @@
       "height": "163 cm",
       "bloodType": "A",
       "zodiac": "Virgo",
-      "memberColor": "White"
+      "memberColor": "White",
+      "status": "active"
     },
     {
       "id": "elove-9",
@@ -117,7 +125,8 @@
       "height": "158 cm",
       "bloodType": "A",
       "zodiac": "Leo",
-      "memberColor": "Mint"
+      "memberColor": "Mint",
+      "status": "active"
     },
     {
       "id": "elove-10",
@@ -130,7 +139,8 @@
       "height": "160 cm",
       "bloodType": "B",
       "zodiac": "Aquarius",
-      "memberColor": "Pink"
+      "memberColor": "Pink",
+      "status": "active"
     },
     {
       "id": "nme-1",
@@ -143,7 +153,8 @@
       "height": "158 cm",
       "bloodType": "O",
       "zodiac": "Leo",
-      "memberColor": "Pink"
+      "memberColor": "Pink",
+      "status": "active"
     },
     {
       "id": "nme-2",
@@ -156,7 +167,8 @@
       "height": "156 cm",
       "bloodType": "A",
       "zodiac": "Libra",
-      "memberColor": "Coral"
+      "memberColor": "Coral",
+      "status": "active"
     },
     {
       "id": "nme-3",
@@ -169,7 +181,8 @@
       "height": "160 cm",
       "bloodType": "B",
       "zodiac": "Virgo",
-      "memberColor": "Purple"
+      "memberColor": "Purple",
+      "status": "active"
     },
     {
       "id": "nme-4",
@@ -182,7 +195,8 @@
       "height": "159 cm",
       "bloodType": "O",
       "zodiac": "Taurus",
-      "memberColor": "Yellow"
+      "memberColor": "Yellow",
+      "status": "active"
     },
     {
       "id": "nme-5",
@@ -195,7 +209,8 @@
       "height": "157 cm",
       "bloodType": "A",
       "zodiac": "Capricorn",
-      "memberColor": "Sky Blue"
+      "memberColor": "Sky Blue",
+      "status": "active"
     },
     {
       "id": "nme-6",
@@ -208,7 +223,8 @@
       "height": "162 cm",
       "bloodType": "O",
       "zodiac": "Pisces",
-      "memberColor": "Peach"
+      "memberColor": "Peach",
+      "status": "active"
     },
     {
       "id": "nme-7",
@@ -221,7 +237,8 @@
       "height": "158 cm",
       "bloodType": "B",
       "zodiac": "Cancer",
-      "memberColor": "Mint"
+      "memberColor": "Mint",
+      "status": "active"
     },
     {
       "id": "nme-8",
@@ -234,7 +251,8 @@
       "height": "157 cm",
       "bloodType": "A",
       "zodiac": "Scorpio",
-      "memberColor": "Gold"
+      "memberColor": "Gold",
+      "status": "active"
     },
     {
       "id": "nme-9",
@@ -247,7 +265,8 @@
       "height": "159 cm",
       "bloodType": "O",
       "zodiac": "Gemini",
-      "memberColor": "Red"
+      "memberColor": "Red",
+      "status": "active"
     },
     {
       "id": "nme-10",
@@ -260,7 +279,8 @@
       "height": "160 cm",
       "bloodType": "B",
       "zodiac": "Aries",
-      "memberColor": "Orange"
+      "memberColor": "Orange",
+      "status": "active"
     },
     {
       "id": "nme-11",
@@ -273,7 +293,8 @@
       "height": "165 cm",
       "bloodType": "A",
       "zodiac": "Virgo",
-      "memberColor": "Lime"
+      "memberColor": "Lime",
+      "status": "active"
     },
     {
       "id": "nme-12",
@@ -286,7 +307,8 @@
       "height": "156 cm",
       "bloodType": "B",
       "zodiac": "Gemini",
-      "memberColor": "Lavender"
+      "memberColor": "Lavender",
+      "status": "active"
     },
     {
       "id": "njoy-1",
@@ -299,7 +321,8 @@
       "height": "158 cm",
       "bloodType": "A",
       "zodiac": "Libra",
-      "memberColor": "Pink"
+      "memberColor": "Pink",
+      "status": "active"
     },
     {
       "id": "njoy-2",
@@ -312,7 +335,8 @@
       "height": "157 cm",
       "bloodType": "O",
       "zodiac": "Aquarius",
-      "memberColor": "Light Pink"
+      "memberColor": "Light Pink",
+      "status": "active"
     },
     {
       "id": "njoy-3",
@@ -325,7 +349,8 @@
       "height": "159 cm",
       "bloodType": "B",
       "zodiac": "Virgo",
-      "memberColor": "Blue"
+      "memberColor": "Blue",
+      "status": "active"
     },
     {
       "id": "njoy-4",
@@ -338,7 +363,8 @@
       "height": "162 cm",
       "bloodType": "A",
       "zodiac": "Aquarius",
-      "memberColor": "Yellow"
+      "memberColor": "Yellow",
+      "status": "active"
     },
     {
       "id": "njoy-5",
@@ -351,7 +377,8 @@
       "height": "156 cm",
       "bloodType": "O",
       "zodiac": "Leo",
-      "memberColor": "Orange"
+      "memberColor": "Orange",
+      "status": "active"
     },
     {
       "id": "njoy-6",
@@ -364,7 +391,8 @@
       "height": "160 cm",
       "bloodType": "B",
       "zodiac": "Pisces",
-      "memberColor": "Mint"
+      "memberColor": "Mint",
+      "status": "active"
     },
     {
       "id": "njoy-7",
@@ -377,7 +405,8 @@
       "height": "158 cm",
       "bloodType": "A",
       "zodiac": "Sagittarius",
-      "memberColor": "Purple"
+      "memberColor": "Purple",
+      "status": "active"
     },
     {
       "id": "njoy-8",
@@ -390,7 +419,8 @@
       "height": "163 cm",
       "bloodType": "O",
       "zodiac": "Cancer",
-      "memberColor": "Red"
+      "memberColor": "Red",
+      "status": "active"
     },
     {
       "id": "njoy-9",
@@ -403,7 +433,8 @@
       "height": "157 cm",
       "bloodType": "B",
       "zodiac": "Aries",
-      "memberColor": "Coral"
+      "memberColor": "Coral",
+      "status": "active"
     },
     {
       "id": "njoy-10",
@@ -416,7 +447,8 @@
       "height": "161 cm",
       "bloodType": "A",
       "zodiac": "Sagittarius",
-      "memberColor": "Sky Blue"
+      "memberColor": "Sky Blue",
+      "status": "active"
     },
     {
       "id": "njoy-11",
@@ -429,7 +461,8 @@
       "height": "159 cm",
       "bloodType": "O",
       "zodiac": "Cancer",
-      "memberColor": "Lime"
+      "memberColor": "Lime",
+      "status": "active"
     },
     {
       "id": "njoy-12",
@@ -442,7 +475,8 @@
       "height": "160 cm",
       "bloodType": "B",
       "zodiac": "Taurus",
-      "memberColor": "Gold"
+      "memberColor": "Gold",
+      "status": "active"
     }
   ]
 }

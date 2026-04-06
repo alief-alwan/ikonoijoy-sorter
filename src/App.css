@@ -96,6 +96,13 @@ body {
   margin-bottom: 1rem;
 }
 
+.group-filter-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
 .group-checkbox {
   background: rgba(255, 255, 255, 0.1);
   padding: 0.5rem 1rem;
@@ -110,6 +117,28 @@ body {
 
 .group-checkbox input {
   margin-right: 0.4rem;
+}
+
+.status-toggles {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.status-checkbox {
+  background: rgba(255, 255, 255, 0.07);
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background 0.2s;
+}
+
+.status-checkbox:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.status-checkbox input {
+  margin-right: 0.3rem;
 }
 
 .song-count {
