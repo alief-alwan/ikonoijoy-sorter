@@ -11,7 +11,17 @@ function MemberWelcome({ members, onStart, onBack }) {
     () => [...new Set(members.map((m) => m.group))],
     [members]
   );
+
+  // Track which groups are selected
   const [selectedGroups, setSelectedGroups] = useState(new Set(groups));
+
+  // Track active/former toggles per group: { [group]: { active: bool, former: bool } }
+  const [statusToggles, setStatusToggles] = useState(() => {
+    const init = {};
+    for (const g of groups) init[g] = { active: true, former: false };
+    return init;
+  });
+
   const [userName, setUserName] = useState("");
 
   const toggleGroup = (group) => {
@@ -23,19 +33,40 @@ function MemberWelcome({ members, onStart, onBack }) {
     });
   };
 
+  const toggleStatus = (group, key) => {
+    setStatusToggles((prev) => ({
+      ...prev,
+      [group]: { ...prev[group], [key]: !prev[group][key] },
+    }));
+  };
+
   const selectAll = () => setSelectedGroups(new Set(groups));
   const deselectAll = () => setSelectedGroups(new Set());
   const allSelected = groups.length > 0 && groups.every((g) => selectedGroups.has(g));
 
+  // Check whether a group actually has former members in the data
+  const groupHasFormer = useMemo(() => {
+    const result = {};
+    for (const g of groups) {
+      result[g] = members.some((m) => m.group === g && m.status === "former");
+    }
+    return result;
+  }, [members, groups]);
+
+  const filteredMembers = members.filter((m) => {
+    if (!selectedGroups.has(m.group)) return false;
+    const t = statusToggles[m.group] ?? { active: true, former: false };
+    const isFormer = m.status === "former";
+    return isFormer ? t.former : t.active;
+  });
+
   const membersPerGroup = useMemo(() => {
     const counts = {};
-    for (const m of members) {
+    for (const m of filteredMembers) {
       counts[m.group] = (counts[m.group] || 0) + 1;
     }
     return counts;
-  }, [members]);
-
-  const filteredMembers = members.filter((m) => selectedGroups.has(m.group));
+  }, [filteredMembers]);
 
   const handleStart = () => {
     onStart(filteredMembers, userName.trim());
@@ -78,17 +109,41 @@ function MemberWelcome({ members, onStart, onBack }) {
 
       <div className="group-filters">
         {groups.map((group) => (
-          <label key={group} className="group-checkbox">
-            <input
-              type="checkbox"
-              checked={selectedGroups.has(group)}
-              onChange={() => toggleGroup(group)}
-            />
-            <span style={{ color: GROUP_COLORS[group] }}>{group}</span>
-            <span className="group-song-count">
-              ({membersPerGroup[group]} members)
-            </span>
-          </label>
+          <div key={group} className="group-filter-row">
+            <label className="group-checkbox">
+              <input
+                type="checkbox"
+                checked={selectedGroups.has(group)}
+                onChange={() => toggleGroup(group)}
+              />
+              <span style={{ color: GROUP_COLORS[group] }}>{group}</span>
+              <span className="group-song-count">
+                ({membersPerGroup[group] ?? 0} members)
+              </span>
+            </label>
+            {selectedGroups.has(group) && (
+              <div className="status-toggles">
+                <label className="status-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={statusToggles[group]?.active ?? true}
+                    onChange={() => toggleStatus(group, "active")}
+                  />
+                  Active
+                </label>
+                {groupHasFormer[group] && (
+                  <label className="status-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={statusToggles[group]?.former ?? false}
+                      onChange={() => toggleStatus(group, "former")}
+                    />
+                    Former
+                  </label>
+                )}
+              </div>
+            )}
+          </div>
         ))}
       </div>
 
