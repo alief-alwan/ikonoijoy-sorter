@@ -1094,7 +1094,7 @@ body {
   padding: 1.25rem 1rem;
   border-radius: 16px;
   cursor: pointer;
-  width: 220px;
+  width: 240px;
   min-height: 340px;
   overflow: hidden;
   display: flex;
@@ -1159,25 +1159,43 @@ body {
   margin-top: 0.1rem;
 }
 
-.member-info-badges {
+.member-info-table {
+  width: 100%;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.3rem;
-  margin-top: 0.3rem;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-top: 0.4rem;
+  text-align: left;
 }
 
-.member-badge {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  padding: 0.15rem 0.5rem;
+.member-info-row {
+  display: flex;
+  gap: 0.4rem;
   font-size: 0.7rem;
-  opacity: 0.85;
-  white-space: nowrap;
+  line-height: 1.4;
 }
 
-.member-color-badge {
-  font-weight: 600;
+.member-info-label {
+  color: rgba(255, 255, 255, 0.5);
+  min-width: 58px;
+  flex-shrink: 0;
+}
+
+.member-info-value {
+  color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.member-color-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  flex-shrink: 0;
 }
 
 /* ── Member Results ── */
@@ -1297,5 +1315,13 @@ body {
   .member-badge {
     font-size: 0.62rem;
     padding: 0.1rem 0.35rem;
+  }
+
+  .member-info-row {
+    font-size: 0.62rem;
+  }
+
+  .member-info-label {
+    min-width: 50px;
   }
 }

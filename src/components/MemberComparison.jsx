@@ -6,6 +6,46 @@ const GROUP_COLORS = {
   "≒JOY": "#f59e0b",
 };
 
+const COLOR_HEX = {
+  "Red": "#e74c3c",
+  "Yellow": "#f1c40f",
+  "Lime Green": "#2ecc71",
+  "Coral Pink": "#f08080",
+  "Lavender": "#967bb6",
+  "Orange": "#e67e22",
+  "Sky Blue": "#5bc0de",
+  "White": "#ecf0f1",
+  "Mint": "#98d8c8",
+  "Pink": "#ff69b4",
+  "Coral": "#ff7f50",
+  "Purple": "#9b59b6",
+  "Peach": "#ffcba4",
+  "Gold": "#ffd700",
+  "Lime": "#b5e550",
+  "Light Blue": "#add8e6",
+  "Light Pink": "#ffb6c1",
+  "Blue": "#3498db",
+};
+
+function formatDate(dateStr) {
+  if (!dateStr) return null;
+  const [year, month, day] = dateStr.split("-").map(Number);
+  return new Date(Date.UTC(year, month - 1, day)).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+}
+
+const SAFE_COLOR_RE = /^[a-zA-Z0-9#(),.\s%]+$/;
+
+function safeColor(value) {
+  if (!value) return undefined;
+  if (COLOR_HEX[value]) return COLOR_HEX[value];
+  return SAFE_COLOR_RE.test(value) ? value : undefined;
+}
+
 function MemberCard({ member, side, onChoice }) {
   const accentColor =
     member.memberColor
@@ -48,28 +88,42 @@ function MemberCard({ member, side, onChoice }) {
           {member.group}
         </span>
 
-        <div className="member-info-badges">
-          {member.memberColor && (
-            <span className="member-badge member-color-badge">
-              🎨 {member.memberColor}
-            </span>
-          )}
+        <div className="member-info-table">
           {member.dateOfBirth && (
-            <span className="member-badge">
-              🎂 {member.dateOfBirth}
-            </span>
+            <div className="member-info-row">
+              <span className="member-info-label">Born</span>
+              <span className="member-info-value">{formatDate(member.dateOfBirth)}</span>
+            </div>
           )}
           {member.birthplace && (
-            <span className="member-badge">📍 {member.birthplace}</span>
-          )}
-          {member.height && (
-            <span className="member-badge">📏 {member.height}</span>
-          )}
-          {member.bloodType && (
-            <span className="member-badge">🩸 Type {member.bloodType}</span>
+            <div className="member-info-row">
+              <span className="member-info-label">Birthplace</span>
+              <span className="member-info-value">{member.birthplace}</span>
+            </div>
           )}
           {member.zodiac && (
-            <span className="member-badge">✨ {member.zodiac}</span>
+            <div className="member-info-row">
+              <span className="member-info-label">Zodiac</span>
+              <span className="member-info-value">{member.zodiac}</span>
+            </div>
+          )}
+          {member.height && (
+            <div className="member-info-row">
+              <span className="member-info-label">Height</span>
+              <span className="member-info-value">{member.height}</span>
+            </div>
+          )}
+          {member.memberColor && (
+            <div className="member-info-row">
+              <span className="member-info-label">Color</span>
+              <span className="member-info-value">
+                <span
+                  className="member-color-swatch"
+                  style={{ backgroundColor: safeColor(member.memberColor) }}
+                />
+                {member.memberColor}
+              </span>
+            </div>
           )}
         </div>
       </button>
