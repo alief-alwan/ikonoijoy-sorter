@@ -3,7 +3,7 @@ import html2canvas from "html2canvas";
 
 const MEDAL = ["🥇", "🥈", "🥉"];
 
-function Results({ results, userName, onRestart, onSortAgain }) {
+function Results({ results, userName, onRestart, onSortAgain, onFullRestart }) {
   const [expanded, setExpanded] = useState(false);
   const [copyStatus, setCopyStatus] = useState("idle"); // idle | copied | failed
   const [saveStatus, setSaveStatus] = useState("idle"); // idle | saving | failed
@@ -253,6 +253,11 @@ function Results({ results, userName, onRestart, onSortAgain }) {
         <button className="btn-sort-again" onClick={onSortAgain}>
           🔄 Sort Again (Same Pool)
         </button>
+        {onFullRestart && (
+          <button className="btn-back" onClick={onFullRestart}>
+            ← Sort Members / Songs
+          </button>
+        )}
       </div>
 
       {/* ── Hidden Full-Ranking Card for Image Export (720px tall, auto width) ── */}
