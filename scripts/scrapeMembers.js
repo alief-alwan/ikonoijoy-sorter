@@ -219,8 +219,16 @@ function buildMember(pageData, groupName, status) {
   };
 
   const nameKanji =
-    get("kanji", "japanese_name", "japanese", "kanji_name") ??
-    (pageData.title || "").replace(/_/g, " ");
+    get(
+      "kanji",
+      "japanese_name",
+      "japanese",
+      "kanji_name",
+      "name_kanji",
+      "native_name",
+      "full_name_kanji",
+      "birth_name_kanji"
+    ) ?? (pageData.title || "").replace(/_/g, " ");
   const romaji =
     get("romaji", "romanized", "romanization", "romanised", "latin_name") ??
     (pageData.title || "").replace(/_/g, " ");
@@ -247,14 +255,11 @@ function buildMember(pageData, groupName, status) {
     pageData.thumbnail?.source ?? null;
   const zodiac = zodiacFromDate(dob);
 
-  // Determine group from infobox or use the category group
-  const infoGroup = get("group", "groups", "unit") ?? groupName;
-
   return {
     id: pageData.pageid ?? pageData.title,
     name: nameKanji,
     romaji,
-    group: infoGroup,
+    group: groupName,
     status: status ?? "active",
     photo: photoUrl,
     dateOfBirth: dob,

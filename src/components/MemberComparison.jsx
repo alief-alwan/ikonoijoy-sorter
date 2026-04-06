@@ -28,12 +28,18 @@ function MemberCard({ member, side, onChoice }) {
             />
           ) : (
             <div className="member-photo-placeholder">
-              {member.romaji ? member.romaji.charAt(0) : "?"}
+              {member.name && member.name !== member.romaji
+                ? member.name.charAt(0)
+                : member.romaji
+                ? member.romaji.charAt(0)
+                : "?"}
             </div>
           )}
         </div>
 
-        <span className="member-name-kanji">{member.name}</span>
+        {member.name && member.name !== member.romaji && (
+          <span className="member-name-kanji">{member.name}</span>
+        )}
         <span className="member-name-romaji">{member.romaji}</span>
         <span
           className="member-group-badge"
@@ -52,6 +58,9 @@ function MemberCard({ member, side, onChoice }) {
             <span className="member-badge">
               🎂 {member.dateOfBirth}
             </span>
+          )}
+          {member.birthplace && (
+            <span className="member-badge">📍 {member.birthplace}</span>
           )}
           {member.height && (
             <span className="member-badge">📏 {member.height}</span>
