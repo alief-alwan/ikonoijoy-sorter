@@ -642,6 +642,11 @@ body {
   border-radius: 6px;
 }
 
+.results-list--expanded .member-result-photo {
+  height: auto;
+  object-fit: contain;
+}
+
 .results-list--expanded .result-info {
   width: 100%;
 }
@@ -1223,9 +1228,10 @@ body {
 }
 
 .member-save-photo {
-  border-radius: 4px;
-  width: 40px;
-  height: auto;
+  border-radius: 6px;
+  width: 34px;
+  height: 34px;
+  object-fit: cover;
   display: block;
   flex-shrink: 0;
 }
