@@ -9,7 +9,7 @@ const GROUP_COLORS = {
   "≒JOY": "#f59e0b",
 };
 
-function MemberResults({ results, userName, onRestart, onSortAgain }) {
+function MemberResults({ results, userName, onRestart, onSortAgain, onFullRestart }) {
   const [expanded, setExpanded] = useState(false);
   const [copyStatus, setCopyStatus] = useState("idle");
   const [saveStatus, setSaveStatus] = useState("idle");
@@ -288,6 +288,11 @@ function MemberResults({ results, userName, onRestart, onSortAgain }) {
         <button className="btn-sort-again" onClick={onSortAgain}>
           🔄 Sort Again (Same Pool)
         </button>
+        {onFullRestart && (
+          <button className="btn-back" onClick={onFullRestart}>
+            ← Sort Members / Songs
+          </button>
+        )}
       </div>
 
       {/* ── Hidden Full-Ranking Card for Image Export ── */}

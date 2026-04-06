@@ -144,8 +144,8 @@ function cleanWikiValue(val) {
   val = val.replace(/\[\[(?:[^|\]]*\|)?([^\]]+)\]\]/g, "$1");
   // Remove {{…}} template calls
   val = val.replace(/\{\{[^}]*\}\}/g, "");
-  // Remove HTML tags (including incomplete tags to prevent injection)
-  val = val.replace(/<[^>]*>/g, "").replace(/</g, "").replace(/>/g, "");
+  // Remove HTML tags (including incomplete ones) and all angle brackets
+  val = val.replace(/[<>]/g, "");
   // Remove wikitext formatting
   val = val.replace(/'{2,3}/g, "");
   // Collapse whitespace
