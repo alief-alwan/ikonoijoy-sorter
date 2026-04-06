@@ -14,9 +14,9 @@
     "wanakana": "^5.3.1"
   },
   "scripts": {
-    "prestart": "node -e \"require('fs').cpSync('node_modules/kuromoji/dict','public/dict',{recursive:true})\"",
+    "prestart": "node -e \"require('fs').cpSync('node_modules/kuromoji/dict','public/dict',{recursive:true})\" && node scripts/scrapeMembers.js",
     "start": "react-app-rewired start",
-    "prebuild": "node -e \"require('fs').cpSync('node_modules/kuromoji/dict','public/dict',{recursive:true})\"",
+    "prebuild": "node -e \"require('fs').cpSync('node_modules/kuromoji/dict','public/dict',{recursive:true})\" && node scripts/scrapeMembers.js",
     "build": "react-app-rewired build"
   },
   "browserslist": {

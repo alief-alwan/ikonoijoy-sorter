@@ -12,7 +12,7 @@ function shuffleSample(array, count) {
   return shuffled.slice(0, count);
 }
 
-function Welcome({ songs, onStart }) {
+function Welcome({ songs, onStart, onBack }) {
   const groups = useMemo(() => [...new Set(songs.map((s) => s.group))], [songs]);
   const [selectedGroups, setSelectedGroups] = useState(new Set(groups));
   const [userName, setUserName] = useState("");
@@ -144,6 +144,12 @@ function Welcome({ songs, onStart }) {
       >
         Start Sorting!
       </button>
+
+      {onBack && (
+        <button className="btn-back" onClick={onBack}>
+          ← Back
+        </button>
+      )}
     </div>
   );
 }

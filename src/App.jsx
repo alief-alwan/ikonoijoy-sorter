@@ -1,7 +1,11 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import Welcome from "./components/Welcome";
+import ModeSelect from "./components/ModeSelect";
+import MemberWelcome from "./components/MemberWelcome";
 import Comparison from "./components/Comparison";
+import MemberComparison from "./components/MemberComparison";
 import Results from "./components/Results";
+import MemberResults from "./components/MemberResults";
 import { mergeSortGenerator, estimateComparisons } from "./utils/mergeSort";
 import { initTokenizer, convertToRomaji } from "./utils/romaji";
 import "./App.css";
@@ -153,9 +157,19 @@ function shuffleArray(array) {
   return shuffled;
 }
 
+async function fetchMembers() {
+  const response = await fetch("./members.json");
+  if (!response.ok) throw new Error("Could not load member data.");
+  const data = await response.json();
+  return Array.isArray(data.members) ? data.members : [];
+}
+
 function App() {
-  const [phase, setPhase] = useState("welcome");
+  // "mode" tracks whether we are sorting songs or members (null = not chosen yet)
+  const [sortMode, setSortMode] = useState(null); // null | "songs" | "members"
+  const [phase, setPhase] = useState("welcome"); // welcome | sorting | results
   const [songs, setSongs] = useState([]);
+  const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPair, setCurrentPair] = useState(null);
@@ -164,22 +178,28 @@ function App() {
   const [userName, setUserName] = useState("");
   const [canUndo, setCanUndo] = useState(false);
   const generatorRef = useRef(null);
-  const shuffledSongsRef = useRef([]);
+  const shuffledItemsRef = useRef([]);
   const choiceHistoryRef = useRef([]);
   const sortPoolRef = useRef([]);
 
   useEffect(() => {
-    fetchAllSongs()
-      .then((data) => setSongs(data))
+    Promise.all([
+      fetchAllSongs().catch((err) => { throw err; }),
+      fetchMembers().catch(() => []), // members are best-effort
+    ])
+      .then(([songData, memberData]) => {
+        setSongs(songData);
+        setMembers(memberData);
+      })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
 
-  const startSorting = useCallback((songsToSort, name) => {
+  const startSorting = useCallback((itemsToSort, name) => {
     setUserName(name || "");
-    sortPoolRef.current = songsToSort;
-    const shuffled = shuffleArray(songsToSort);
-    shuffledSongsRef.current = shuffled;
+    sortPoolRef.current = itemsToSort;
+    const shuffled = shuffleArray(itemsToSort);
+    shuffledItemsRef.current = shuffled;
     choiceHistoryRef.current = [];
     const total = estimateComparisons(shuffled.length);
     setProgress({ current: 0, total });
@@ -220,7 +240,7 @@ function App() {
     const newHistory = history.slice(0, -1);
     choiceHistoryRef.current = newHistory;
 
-    const gen = mergeSortGenerator(shuffledSongsRef.current);
+    const gen = mergeSortGenerator(shuffledItemsRef.current);
     generatorRef.current = gen;
 
     // Advance generator to the first comparison pair before replaying choices
@@ -245,16 +265,21 @@ function App() {
     setProgress({ current: 0, total: 0 });
     setUserName("");
     setCanUndo(false);
-    shuffledSongsRef.current = [];
+    shuffledItemsRef.current = [];
     choiceHistoryRef.current = [];
   }, []);
+
+  const handleFullRestart = useCallback(() => {
+    setSortMode(null);
+    handleRestart();
+  }, [handleRestart]);
 
   if (loading) {
     return (
       <div className="app">
-        <h1 className="app-title">🎶 IKONOIJOY Song Sorter</h1>
+        <h1 className="app-title">🌸 IKONOIJOY Sorter</h1>
         <div className="loading-spinner" />
-        <p>Loading songs from iTunes...</p>
+        <p>Loading data…</p>
       </div>
     );
   }
@@ -262,7 +287,7 @@ function App() {
   if (error) {
     return (
       <div className="app">
-        <h1 className="app-title">🎶 IKONOIJOY Song Sorter</h1>
+        <h1 className="app-title">🌸 IKONOIJOY Sorter</h1>
         <p className="error-message">❌ {error}</p>
       </div>
     );
@@ -270,11 +295,23 @@ function App() {
 
   return (
     <div className="app">
-      <h1 className="app-title">🎶 IKONOIJOY Song Sorter</h1>
+      <h1 className="app-title">🌸 IKONOIJOY Sorter</h1>
       <p className="app-subtitle">=LOVE · ≠ME · ≒JOY</p>
 
-      {phase === "welcome" && <Welcome songs={songs} onStart={startSorting} />}
-      {phase === "sorting" && currentPair && (
+      {/* ── Mode selection ── */}
+      {sortMode === null && (
+        <ModeSelect onSelectMode={setSortMode} />
+      )}
+
+      {/* ── Songs flow ── */}
+      {sortMode === "songs" && phase === "welcome" && (
+        <Welcome
+          songs={songs}
+          onStart={startSorting}
+          onBack={() => setSortMode(null)}
+        />
+      )}
+      {sortMode === "songs" && phase === "sorting" && currentPair && (
         <Comparison
           pair={currentPair}
           onChoice={handleChoice}
@@ -283,8 +320,41 @@ function App() {
           progress={progress}
         />
       )}
-      {phase === "results" && (
-        <Results results={results} userName={userName} onRestart={handleRestart} onSortAgain={handleSortAgain} />
+      {sortMode === "songs" && phase === "results" && (
+        <Results
+          results={results}
+          userName={userName}
+          onRestart={handleRestart}
+          onSortAgain={handleSortAgain}
+          onFullRestart={handleFullRestart}
+        />
+      )}
+
+      {/* ── Members flow ── */}
+      {sortMode === "members" && phase === "welcome" && (
+        <MemberWelcome
+          members={members}
+          onStart={startSorting}
+          onBack={() => setSortMode(null)}
+        />
+      )}
+      {sortMode === "members" && phase === "sorting" && currentPair && (
+        <MemberComparison
+          pair={currentPair}
+          onChoice={handleChoice}
+          onUndo={handleUndo}
+          canUndo={canUndo}
+          progress={progress}
+        />
+      )}
+      {sortMode === "members" && phase === "results" && (
+        <MemberResults
+          results={results}
+          userName={userName}
+          onRestart={handleRestart}
+          onSortAgain={handleSortAgain}
+          onFullRestart={handleFullRestart}
+        />
       )}
     </div>
   );
