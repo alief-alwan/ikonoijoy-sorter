@@ -53,12 +53,16 @@ function MemberWelcome({ members, onStart, onBack }) {
     return result;
   }, [members, groups]);
 
-  const filteredMembers = members.filter((m) => {
-    if (!selectedGroups.has(m.group)) return false;
-    const t = statusToggles[m.group] ?? { active: true, former: false };
-    const isFormer = m.status === "former";
-    return isFormer ? t.former : t.active;
-  });
+  const filteredMembers = useMemo(
+    () =>
+      members.filter((m) => {
+        if (!selectedGroups.has(m.group)) return false;
+        const t = statusToggles[m.group] ?? { active: true, former: false };
+        const isFormer = m.status === "former";
+        return isFormer ? t.former : t.active;
+      }),
+    [members, selectedGroups, statusToggles]
+  );
 
   const membersPerGroup = useMemo(() => {
     const counts = {};
