@@ -267,9 +267,36 @@ function buildMember(pageData, groupName) {
 
 // ── Groups config ──────────────────────────────────────────────────────────
 const GROUPS = [
-  { name: "=LOVE", categories: ["Category:=LOVE members", "Category:＝LOVE members"] },
-  { name: "≠ME", categories: ["Category:≠ME members", "Category:Notme members"] },
-  { name: "≒JOY", categories: ["Category:≒JOY members", "Category:NearlyEqualJoy members"] },
+  {
+    name: "=LOVE",
+    categories: [
+      "Category:=LOVE members",
+      "Category:=LOVE Members",
+      "Category:＝LOVE members",
+      "Category:＝LOVE Members",
+      "Category:=LOVE",
+    ],
+  },
+  {
+    name: "≠ME",
+    categories: [
+      "Category:≠ME members",
+      "Category:≠ME Members",
+      "Category:Notme members",
+      "Category:NotMe members",
+      "Category:≠ME",
+    ],
+  },
+  {
+    name: "≒JOY",
+    categories: [
+      "Category:≒JOY members",
+      "Category:≒JOY Members",
+      "Category:NearlyEqualJoy members",
+      "Category:NearlyEqualJOY members",
+      "Category:≒JOY",
+    ],
+  },
 ];
 
 // ── Fallback data ──────────────────────────────────────────────────────────
@@ -315,11 +342,47 @@ const FALLBACK_MEMBERS = [
 ];
 
 // ── Main scrape logic ──────────────────────────────────────────────────────
+
+/**
+ * Uses the allcategories API to discover category names that start with the
+ * group name.  Returns them as "Category:…" strings.
+ */
+async function discoverCategories(groupName) {
+  const discovered = new Set();
+  try {
+    const url = buildApiUrl({
+      action: "query",
+      list: "allcategories",
+      acprefix: groupName,
+      aclimit: "20",
+      format: "json",
+    });
+    const json = await fetchJson(url);
+    for (const cat of json.query?.allcategories ?? []) {
+      discovered.add(`Category:${cat["*"]}`);
+    }
+  } catch (e) {
+    // ignore — discovery is best-effort
+  }
+  return [...discovered];
+}
+
 async function scrapeGroup(group) {
   const allTitles = [];
-  for (const cat of group.categories) {
+
+  // Dynamically discover categories, then append hardcoded ones as fallback
+  const dynamic = await discoverCategories(group.name);
+  const seen = new Set();
+  const categoriesToTry = [];
+  for (const cat of [...dynamic, ...group.categories]) {
+    if (!seen.has(cat)) { seen.add(cat); categoriesToTry.push(cat); }
+  }
+  console.log(`  Trying categories: ${categoriesToTry.join(", ")}`);
+
+  for (const cat of categoriesToTry) {
     try {
       const titles = await fetchCategoryMembers(cat);
+      console.log(`  "${cat}": ${titles.length} page(s)`);
       for (const t of titles) {
         if (!allTitles.includes(t)) allTitles.push(t);
       }
