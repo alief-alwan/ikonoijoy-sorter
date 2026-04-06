@@ -13,6 +13,8 @@ const path = require("path");
 
 const OUT_FILE = path.resolve(__dirname, "../public/members.json");
 const WIKI_API = "https://jpop.fandom.com/api.php";
+const BROWSER_UA =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
 // ── Zodiac helpers ─────────────────────────────────────────────────────────
 const ZODIAC_RANGES = [
@@ -54,10 +56,7 @@ function zodiacFromDate(dateStr) {
 // ── HTTP helper ────────────────────────────────────────────────────────────
 async function fetchJson(url) {
   const response = await fetch(url, {
-    headers: {
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    },
+    headers: { "User-Agent": BROWSER_UA },
   });
   if (!response.ok) {
     throw new Error(`HTTP ${response.status} ${response.statusText}`);
