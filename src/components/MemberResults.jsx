@@ -143,7 +143,7 @@ function MemberResults({ results, userName, onRestart, onSortAgain, onFullRestar
                     className="member-podium-placeholder"
                     style={{ backgroundColor: groupColor }}
                   >
-                    {member.romaji ? member.romaji.charAt(0) : "?"}
+                    {cleanRomaji(member.romaji).charAt(0) || "?"}
                   </div>
                 )}
                 <span className="podium-title">{cleanRomaji(member.romaji)}</span>
@@ -180,7 +180,7 @@ function MemberResults({ results, userName, onRestart, onSortAgain, onFullRestar
                     className="member-save-placeholder"
                     style={{ backgroundColor: groupColor }}
                   >
-                    {member.romaji ? member.romaji.charAt(0) : "?"}
+                    {cleanRomaji(member.romaji).charAt(0) || "?"}
                   </div>
                 )}
                 <div className="save-card-info">
@@ -257,7 +257,7 @@ function MemberResults({ results, userName, onRestart, onSortAgain, onFullRestar
                   className="member-result-placeholder"
                   style={{ backgroundColor: groupColor }}
                 >
-                  {member.romaji ? member.romaji.charAt(0) : "?"}
+                  {cleanRomaji(member.romaji).charAt(0) || "?"}
                 </div>
               )}
               <div className="result-info">
@@ -350,7 +350,7 @@ function MemberResults({ results, userName, onRestart, onSortAgain, onFullRestar
                         className="member-save-all-placeholder"
                         style={{ backgroundColor: groupColor }}
                       >
-                        {member.romaji ? member.romaji.charAt(0) : "?"}
+                        {cleanRomaji(member.romaji).charAt(0) || "?"}
                       </div>
                     )}
                     <span className="save-all-song">{cleanRomaji(member.romaji)}</span>
