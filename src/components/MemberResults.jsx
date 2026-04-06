@@ -9,6 +9,10 @@ const GROUP_COLORS = {
   "≒JOY": "#f59e0b",
 };
 
+function cleanRomaji(romaji) {
+  return (romaji || "").replace(/\s*[\(\[].*?[\)\]]/g, "").trim();
+}
+
 function MemberResults({ results, userName, onRestart, onSortAgain, onFullRestart }) {
   const [expanded, setExpanded] = useState(false);
   const [copyStatus, setCopyStatus] = useState("idle");
@@ -36,7 +40,7 @@ function MemberResults({ results, userName, onRestart, onSortAgain, onFullRestar
     const text = results
       .map(
         (member, i) =>
-          `#${i + 1} ${member.name} (${member.romaji}) — ${member.group}`
+          `#${i + 1} ${cleanRomaji(member.romaji)} — ${member.group}`
       )
       .join("\n");
     let success = false;
@@ -132,21 +136,20 @@ function MemberResults({ results, userName, onRestart, onSortAgain, onFullRestar
                   <img
                     className="podium-art member-podium-photo"
                     src={member.photo}
-                    alt={member.romaji}
+                    alt={cleanRomaji(member.romaji)}
                   />
                 ) : (
                   <div
                     className="member-podium-placeholder"
                     style={{ backgroundColor: groupColor }}
                   >
-                    {member.romaji ? member.romaji.charAt(0) : "?"}
+                    {cleanRomaji(member.romaji).charAt(0) || "?"}
                   </div>
                 )}
-                <span className="podium-title">{member.name}</span>
+                <span className="podium-title">{cleanRomaji(member.romaji)}</span>
                 <span className="podium-group" style={{ color: groupColor }}>
-                  {member.romaji}
+                  {member.group}
                 </span>
-                <span className="podium-group">{member.group}</span>
               </div>
             );
           })}
@@ -170,20 +173,20 @@ function MemberResults({ results, userName, onRestart, onSortAgain, onFullRestar
                   <img
                     className="save-card-art member-save-photo"
                     src={member.photo}
-                    alt={member.romaji}
+                    alt={cleanRomaji(member.romaji)}
                   />
                 ) : (
                   <div
                     className="member-save-placeholder"
                     style={{ backgroundColor: groupColor }}
                   >
-                    {member.romaji ? member.romaji.charAt(0) : "?"}
+                    {cleanRomaji(member.romaji).charAt(0) || "?"}
                   </div>
                 )}
                 <div className="save-card-info">
-                  <span className="save-card-song">{member.name}</span>
+                  <span className="save-card-song">{cleanRomaji(member.romaji)}</span>
                   <span className="save-card-group" style={{ color: groupColor }}>
-                    {member.romaji} · {member.group}
+                    {member.group}
                   </span>
                 </div>
               </li>
@@ -247,19 +250,18 @@ function MemberResults({ results, userName, onRestart, onSortAgain, onFullRestar
                 <img
                   className="result-album-art member-result-photo"
                   src={member.photo}
-                  alt={member.romaji}
+                  alt={cleanRomaji(member.romaji)}
                 />
               ) : (
                 <div
                   className="member-result-placeholder"
                   style={{ backgroundColor: groupColor }}
                 >
-                  {member.romaji ? member.romaji.charAt(0) : "?"}
+                  {cleanRomaji(member.romaji).charAt(0) || "?"}
                 </div>
               )}
               <div className="result-info">
-                <span className="song-title">{member.name}</span>
-                <span className="song-romaji">{member.romaji}</span>
+                <span className="song-title">{cleanRomaji(member.romaji)}</span>
                 <span className="song-meta" style={{ color: groupColor }}>
                   {member.group}
                   {member.memberColor ? ` · ${member.memberColor}` : ""}
@@ -341,17 +343,17 @@ function MemberResults({ results, userName, onRestart, onSortAgain, onFullRestar
                       <img
                         className="save-all-art"
                         src={member.photo}
-                        alt={member.romaji}
+                        alt={cleanRomaji(member.romaji)}
                       />
                     ) : (
                       <div
                         className="member-save-all-placeholder"
                         style={{ backgroundColor: groupColor }}
                       >
-                        {member.romaji ? member.romaji.charAt(0) : "?"}
+                        {cleanRomaji(member.romaji).charAt(0) || "?"}
                       </div>
                     )}
-                    <span className="save-all-song">{member.name}</span>
+                    <span className="save-all-song">{cleanRomaji(member.romaji)}</span>
                     <span className="save-all-group">{member.group}</span>
                   </li>
                 );
