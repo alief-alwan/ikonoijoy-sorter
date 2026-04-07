@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 
 function romajiSlug(romaji) {
-  return (romaji || "").toLowerCase().replace(/\s+/g, "_");
+  // Strip trailing disambiguation like "(≒JOY)" before slugifying
+  return (romaji || "")
+    .replace(/\s*\([^)]*\)\s*$/, "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "_");
 }
 
 function buildCandidates(member) {
