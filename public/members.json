@@ -56,6 +56,34 @@
       "bloodType": "B",
       "zodiac": "Virgo",
       "memberColor": "Coral Pink",
+      "status": "former"
+    },
+    {
+      "id": "elove-12",
+      "name": "佐竹のん乃",
+      "romaji": "Satake Nonno",
+      "group": "=LOVE",
+      "photo": null,
+      "dateOfBirth": "1998-11-06",
+      "birthplace": "Gunma, Japan",
+      "height": "159 cm",
+      "bloodType": "A",
+      "zodiac": "Scorpio",
+      "memberColor": "Blue",
+      "status": "former"
+    },
+    {
+      "id": "elove-11",
+      "name": "齋藤樹愛羅",
+      "romaji": "Saito Kiara",
+      "group": "=LOVE",
+      "photo": null,
+      "dateOfBirth": "2004-11-26",
+      "birthplace": "Tochigi, Japan",
+      "height": "156 cm",
+      "bloodType": "B",
+      "zodiac": "Sagittarius",
+      "memberColor": "Light Pink",
       "status": "active"
     },
     {
@@ -477,6 +505,20 @@
       "zodiac": "Taurus",
       "memberColor": "Gold",
       "status": "active"
+    },
+    {
+      "id": "njoy-13",
+      "name": "福山萌叶",
+      "romaji": "Fukuyama Moeka",
+      "group": "≒JOY",
+      "photo": null,
+      "dateOfBirth": "2004-10-22",
+      "birthplace": "Kanagawa, Japan",
+      "height": "163 cm",
+      "bloodType": "O",
+      "zodiac": "Libra",
+      "memberColor": "Light Blue",
+      "status": "former"
     }
   ]
 }
