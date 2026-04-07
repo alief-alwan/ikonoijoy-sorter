@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 function romajiSlug(romaji) {
   return (romaji || "").toLowerCase().replace(/\s+/g, "_");
@@ -19,6 +19,12 @@ function MemberPhoto({ member, imgClassName, placeholderClassName, placeholderSt
   const displayName =
     member.name && member.name !== member.romaji ? member.name : member.romaji || "";
   const label = displayName.charAt(0) || "?";
+
+  // Reset candidate index when the member changes so that the
+  // component always starts from the first candidate path.
+  useEffect(() => {
+    setIndex(0);
+  }, [member.id]);
 
   if (index >= candidates.length) {
     return (
