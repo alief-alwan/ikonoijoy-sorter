@@ -11,6 +11,22 @@ Rank songs from **=LOVE**, **≠ME**, **≒JOY**, and **IKONOIJOY** by choosing 
 
 Songs are fetched live from the [iTunes Search API](https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/iTuneSearchAPI/) — no API key required.
 
+## Adding Member Photos
+
+Place your photo files in `public/members/` named after each member's ID:
+
+```
+public/members/elove-1.jpg   ← Otani Emiri
+public/members/elove-2.jpg   ← Oba Hana
+public/members/nme-1.jpg     ← Ogi Hana
+public/members/njoy-1.jpg    ← Aida Jurii
+…
+```
+
+The app automatically tries to load `members/<id>.jpg` for each member. If the file is missing, a coloured initial placeholder is shown instead. See [`public/members/README.md`](public/members/README.md) for the full ID list.
+
+If you use a different extension (`.png`, `.webp`, etc.), set the `"photo"` field in `public/members.json` to the exact path, e.g. `"members/elove-1.png"`.
+
 ## Development
 
 ```bash
