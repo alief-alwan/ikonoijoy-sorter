@@ -12,6 +12,7 @@ const fs = require("fs");
 const path = require("path");
 
 const OUT_FILE = path.resolve(__dirname, "../public/members.json");
+const MEMBERS_DIR = path.resolve(__dirname, "../public/members");
 const WIKI_API = "https://jpop.fandom.com/api.php";
 const BROWSER_UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
@@ -202,6 +203,11 @@ async function fetchCategoryMembers(categoryTitle) {
 }
 
 // ── Member data builder ────────────────────────────────────────────────────
+/** Strip trailing wiki disambiguation like "(≒JOY)" from a page title. */
+function stripDisambiguation(title) {
+  return title.replace(/\s*\([^)]*\)\s*$/, "").trim();
+}
+
 function buildMember(pageData, groupName, status) {
   const wikitext =
     pageData.revisions?.[0]?.slots?.main?.["*"] ??
@@ -228,10 +234,10 @@ function buildMember(pageData, groupName, status) {
       "native_name",
       "full_name_kanji",
       "birth_name_kanji"
-    ) ?? (pageData.title || "").replace(/_/g, " ");
+    ) ?? stripDisambiguation((pageData.title || "").replace(/_/g, " "));
   const romaji =
     get("romaji", "romanized", "romanization", "romanised", "latin_name") ??
-    (pageData.title || "").replace(/_/g, " ");
+    stripDisambiguation((pageData.title || "").replace(/_/g, " "));
   const dobRaw = get("born", "birthday", "birth_date", "dob", "birthdate");
   const dob = normalizeDate(dobRaw ?? get("birth_year"));
   const height = get("height") ?? null;
@@ -338,6 +344,45 @@ const FALLBACK_MEMBERS = [
   { id: "njoy-12", name: "山野愛月", romaji: "Yamano Arisu", group: "≒JOY", status: "active", photo: null, dateOfBirth: "2007-05-02", birthplace: "Saitama, Japan", height: "160 cm", bloodType: "B", zodiac: "Taurus", memberColor: "Gold" },
 ];
 
+// ── Local photo resolution ─────────────────────────────────────────────────
+/**
+ * Check for uploaded photo files in public/members/ and use them instead of
+ * (or in addition to) wiki thumbnail URLs.  The MemberPhoto React component
+ * tries `members/<romaji_slug>.jpg` first, so we set the `photo` field to
+ * that local path whenever a matching file exists on disk.
+ */
+function applyLocalPhotos(members) {
+  let localFiles;
+  try {
+    localFiles = new Set(
+      fs.readdirSync(MEMBERS_DIR).filter(function (f) {
+        return f.endsWith(".jpg");
+      })
+    );
+  } catch {
+    // public/members/ doesn't exist yet – nothing to do
+    return members;
+  }
+  if (localFiles.size === 0) return members;
+
+  let matched = 0;
+  var result = members.map(function (m) {
+    // Strip any trailing disambiguation like "(≒JOY)" before slugifying
+    var clean = (m.romaji || "").replace(/\s*\([^)]*\)\s*$/, "").trim();
+    var slug = clean.toLowerCase().replace(/\s+/g, "_");
+    var filename = slug + ".jpg";
+    if (slug && localFiles.has(filename)) {
+      matched++;
+      return Object.assign({}, m, { photo: "members/" + filename });
+    }
+    return m;
+  });
+  if (matched > 0) {
+    console.log("📷 Matched " + matched + " local photo(s) from public/members/.");
+  }
+  return result;
+}
+
 // ── Main scrape logic ──────────────────────────────────────────────────────
 
 async function scrapeGroup(group) {
@@ -425,6 +470,9 @@ async function main() {
     console.log("ℹ️  Writing fallback member data.");
     members = FALLBACK_MEMBERS;
   }
+
+  // Prefer local photos from public/members/ over wiki thumbnails
+  members = applyLocalPhotos(members);
 
   const output = {
     scraped: scraped ? new Date().toISOString() : null,
