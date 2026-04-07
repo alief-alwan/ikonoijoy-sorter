@@ -5,10 +5,11 @@ function romajiSlug(romaji) {
 }
 
 function buildCandidates(member) {
-  if (member.photo) return [member.photo];
-  const candidates = [`members/${member.id}.jpg`];
   const slug = romajiSlug(member.romaji);
+  const candidates = [];
   if (slug) candidates.push(`members/${slug}.jpg`);
+  candidates.push(`members/${member.id}.jpg`);
+  if (member.photo) candidates.push(member.photo);
   return candidates;
 }
 
