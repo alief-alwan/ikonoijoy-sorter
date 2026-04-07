@@ -13,19 +13,18 @@ Songs are fetched live from the [iTunes Search API](https://developer.apple.com/
 
 ## Adding Member Photos
 
-Place your photo files in `public/members/` named after each member's ID:
+Place your photo files in `public/members/`. Two naming schemes are supported — use whichever is more convenient:
+
+**By member ID** (e.g. `nme-12.jpg`) or **by romaji name** (e.g. `honda_miyuki.jpg`):
 
 ```
-public/members/elove-1.jpg   ← Otani Emiri
-public/members/elove-2.jpg   ← Oba Hana
-public/members/nme-1.jpg     ← Ogi Hana
-public/members/njoy-1.jpg    ← Aida Jurii
-…
+public/members/nme-12.jpg         ← Honda Miyuki  (ID style)
+public/members/honda_miyuki.jpg   ← Honda Miyuki  (romaji style)
 ```
 
-The app automatically tries to load `members/<id>.jpg` for each member. If the file is missing, a coloured initial placeholder is shown instead. See [`public/members/README.md`](public/members/README.md) for the full ID list.
+The app tries the ID name first, then the romaji name automatically. You can mix and match across members. If neither file exists, a coloured initial placeholder is shown instead. See [`public/members/README.md`](public/members/README.md) for the full name/ID reference.
 
-If you use a different extension (`.png`, `.webp`, etc.), set the `"photo"` field in `public/members.json` to the exact path, e.g. `"members/elove-1.png"`.
+If you use a non-`.jpg` extension (`.png`, `.webp`, etc.), set the `"photo"` field in `public/members.json` to the exact path, e.g. `"members/honda_miyuki.png"`.
 
 ## Development
 

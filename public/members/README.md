@@ -4,7 +4,9 @@ Place member photo files in this directory. The app will automatically pick them
 
 ## Naming convention
 
-Name each file after the member's ID followed by the image extension:
+Two naming schemes are supported. Use whichever you prefer (or mix and match):
+
+### Option A — by member ID
 
 ```
 elove-1.jpg   ← 大谷映美里 (Otani Emiri)
@@ -45,12 +47,55 @@ njoy-11.jpg   ← 山田百華 (Yamada Momoka)
 njoy-12.jpg   ← 山野愛月 (Yamano Arisu)
 ```
 
+### Option B — by romaji name (lowercase + underscores)
+
+```
+otani_emiri.jpg      ← 大谷映美里
+oba_hana.jpg         ← 大場花菜
+otoshima_risa.jpg    ← 音嶋莉沙
+saito_nagisa.jpg     ← 齊藤なぎさ
+sasaki_maika.jpg     ← 佐々木舞香
+takamatsu_hitomi.jpg ← 高松瞳
+takiwaki_shoko.jpg   ← 瀧脇笙古
+noguchi_iori.jpg     ← 野口衣織
+morohashi_sana.jpg   ← 諸橋沙夏
+yamamoto_anna.jpg    ← 山本杏奈
+
+ogi_hana.jpg         ← 尾木波菜
+ochiai_kirari.jpg    ← 落合希来里
+kanisawa_moeko.jpg   ← 蟹澤萌子
+kawaguchi_natsune.jpg ← 川中子奈月心
+kawanago_natsumi.jpg ← 河野奈津美
+sakurai_momo.jpg     ← 櫻井もも
+suganami_mirei.jpg   ← 涼海みさき
+suzuki_hitomi.jpg    ← 鈴木瞳美
+tanizaki_saya.jpg    ← 谷崎早耶
+tomita_nanaka.jpg    ← 冨田菜々風
+nagata_shiori.jpg    ← 永田詩央里
+honda_miyuki.jpg     ← 本田珠由記
+
+aida_jurii.jpg       ← 相田珠里依
+amano_konoa.jpg      ← 天野香乃愛
+ichihara_ayumi.jpg   ← 市原歩夢
+esumi_renon.jpg      ← 江角怜音
+oshida_mitsuki.jpg   ← 押田美月
+onishi_aoi.jpg       ← 大西葵
+ozawa_aimi.jpg       ← 小澤愛実
+takahashi_mai.jpg    ← 高橋舞
+fujisawa_riko.jpg    ← 藤沢莉子
+murayama_yuuka.jpg   ← 村山結香
+yamada_momoka.jpg    ← 山田百華
+yamano_arisu.jpg     ← 山野愛月
+```
+
+The app tries Option A first, then Option B automatically — so both work without any configuration.
+
 ## Supported formats
 
-`.jpg` / `.jpeg`, `.png`, `.webp` are all fine. The app tries `members/<id>.jpg` by default.  
-If you use a different extension, set the `"photo"` field in `public/members.json` to the exact path, e.g. `"members/elove-1.png"`.
+`.jpg` / `.jpeg`, `.png`, `.webp` are all fine. The auto-discovery above only tries `.jpg`.  
+If you use a different extension, set the `"photo"` field in `public/members.json` to the exact path, e.g. `"members/honda_miyuki.png"`.
 
 ## How it works
 
-When a member has no `"photo"` value in `members.json`, the app automatically tries to load `members/<id>.jpg`.  
-If the file is missing the card shows a coloured initial placeholder instead — so you can add photos for just the members you have without breaking anything.
+When a member has no `"photo"` value in `members.json`, the app first tries `members/<id>.jpg`, then `members/<romaji_slug>.jpg`. If neither file exists the card shows a coloured initial placeholder instead — so you can add photos for just the members you have without breaking anything.
+
