@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import html2canvas from "html2canvas";
+import MemberPhoto from "./MemberPhoto";
 
 const MEDAL = ["🥇", "🥈", "🥉"];
 
@@ -132,20 +133,12 @@ function MemberResults({ results, userName, onRestart, onSortAgain, onFullRestar
                 style={{ "--podium-accent": groupColor }}
               >
                 <span className="podium-medal">{MEDAL[idx]}</span>
-                {member.photo ? (
-                  <img
-                    className="podium-art member-podium-photo"
-                    src={member.photo}
-                    alt={cleanRomaji(member.romaji)}
-                  />
-                ) : (
-                  <div
-                    className="member-podium-placeholder"
-                    style={{ backgroundColor: groupColor }}
-                  >
-                    {cleanRomaji(member.romaji).charAt(0) || "?"}
-                  </div>
-                )}
+                <MemberPhoto
+                  member={member}
+                  imgClassName="podium-art member-podium-photo"
+                  placeholderClassName="member-podium-placeholder"
+                  placeholderStyle={{ backgroundColor: groupColor }}
+                />
                 <span className="podium-title">{cleanRomaji(member.romaji)}</span>
                 <span className="podium-group" style={{ color: groupColor }}>
                   {member.group}
@@ -169,20 +162,12 @@ function MemberResults({ results, userName, onRestart, onSortAgain, onFullRestar
                 <span className="save-card-rank">
                   {index < 3 ? MEDAL[index] : `#${index + 1}`}
                 </span>
-                {member.photo ? (
-                  <img
-                    className="save-card-art member-save-photo"
-                    src={member.photo}
-                    alt={cleanRomaji(member.romaji)}
-                  />
-                ) : (
-                  <div
-                    className="member-save-placeholder"
-                    style={{ backgroundColor: groupColor }}
-                  >
-                    {cleanRomaji(member.romaji).charAt(0) || "?"}
-                  </div>
-                )}
+                <MemberPhoto
+                  member={member}
+                  imgClassName="save-card-art member-save-photo"
+                  placeholderClassName="member-save-placeholder"
+                  placeholderStyle={{ backgroundColor: groupColor }}
+                />
                 <div className="save-card-info">
                   <span className="save-card-song">{cleanRomaji(member.romaji)}</span>
                   <span className="save-card-group" style={{ color: groupColor }}>
@@ -246,20 +231,12 @@ function MemberResults({ results, userName, onRestart, onSortAgain, onFullRestar
               <span className="rank">
                 {index < 3 ? MEDAL[index] : `#${index + 1}`}
               </span>
-              {member.photo ? (
-                <img
-                  className="result-album-art member-result-photo"
-                  src={member.photo}
-                  alt={cleanRomaji(member.romaji)}
-                />
-              ) : (
-                <div
-                  className="member-result-placeholder"
-                  style={{ backgroundColor: groupColor }}
-                >
-                  {cleanRomaji(member.romaji).charAt(0) || "?"}
-                </div>
-              )}
+              <MemberPhoto
+                member={member}
+                imgClassName="result-album-art member-result-photo"
+                placeholderClassName="member-result-placeholder"
+                placeholderStyle={{ backgroundColor: groupColor }}
+              />
               <div className="result-info">
                 <span className="song-title">{cleanRomaji(member.romaji)}</span>
                 <span className="song-meta" style={{ color: groupColor }}>
@@ -339,20 +316,12 @@ function MemberResults({ results, userName, onRestart, onSortAgain, onFullRestar
                     <span className="save-all-rank">
                       {index < 3 ? MEDAL[index] : `#${index + 1}`}
                     </span>
-                    {member.photo ? (
-                      <img
-                        className="save-all-art"
-                        src={member.photo}
-                        alt={cleanRomaji(member.romaji)}
-                      />
-                    ) : (
-                      <div
-                        className="member-save-all-placeholder"
-                        style={{ backgroundColor: groupColor }}
-                      >
-                        {cleanRomaji(member.romaji).charAt(0) || "?"}
-                      </div>
-                    )}
+                    <MemberPhoto
+                      member={member}
+                      imgClassName="save-all-art"
+                      placeholderClassName="member-save-all-placeholder"
+                      placeholderStyle={{ backgroundColor: groupColor }}
+                    />
                     <span className="save-all-song">{cleanRomaji(member.romaji)}</span>
                     <span className="save-all-group">{member.group}</span>
                   </li>

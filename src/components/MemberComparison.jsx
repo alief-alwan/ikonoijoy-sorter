@@ -1,4 +1,5 @@
 import React, { useEffect, useCallback } from "react";
+import MemberPhoto from "./MemberPhoto";
 
 const GROUP_COLORS = {
   "=LOVE": "#e94560",
@@ -20,21 +21,11 @@ function MemberCard({ member, side, onChoice }) {
         style={accentColor ? { "--member-accent": accentColor } : { "--member-accent": GROUP_COLORS[member.group] ?? "#e94560" }}
       >
         <div className="member-card-photo-wrap">
-          {member.photo ? (
-            <img
-              className="member-photo"
-              src={member.photo}
-              alt={member.romaji}
-            />
-          ) : (
-            <div className="member-photo-placeholder">
-              {member.name && member.name !== member.romaji
-                ? member.name.charAt(0)
-                : member.romaji
-                ? member.romaji.charAt(0)
-                : "?"}
-            </div>
-          )}
+          <MemberPhoto
+            member={member}
+            imgClassName="member-photo"
+            placeholderClassName="member-photo-placeholder"
+          />
         </div>
 
         {member.name && member.name !== member.romaji && (
