@@ -56,6 +56,20 @@
       "bloodType": "B",
       "zodiac": "Virgo",
       "memberColor": "Coral Pink",
+      "status": "former"
+    },
+    {
+      "id": "elove-11",
+      "name": "齋藤樹愛羅",
+      "romaji": "Saito Kiara",
+      "group": "=LOVE",
+      "photo": null,
+      "dateOfBirth": "2004-11-26",
+      "birthplace": "Tochigi, Japan",
+      "height": "156 cm",
+      "bloodType": "B",
+      "zodiac": "Sagittarius",
+      "memberColor": "Light Pink",
       "status": "active"
     },
     {
