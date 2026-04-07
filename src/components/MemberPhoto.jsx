@@ -3,11 +3,9 @@ import React, { useState } from "react";
 function MemberPhoto({ member, imgClassName, placeholderClassName, placeholderStyle }) {
   const [failed, setFailed] = useState(false);
   const src = member.photo || `members/${member.id}.jpg`;
-  const label =
-    (member.name && member.name !== member.romaji
-      ? member.name
-      : member.romaji || ""
-    ).charAt(0) || "?";
+  const displayName =
+    member.name && member.name !== member.romaji ? member.name : member.romaji || "";
+  const label = displayName.charAt(0) || "?";
 
   if (failed) {
     return (
