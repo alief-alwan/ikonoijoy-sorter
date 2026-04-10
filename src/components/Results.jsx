@@ -71,7 +71,7 @@ function Results({ results, userName, onRestart, onSortAgain, onFullRestart }) {
     try {
       const canvas = await html2canvas(imageRef.current, {
         backgroundColor: "#1a1a2e",
-        scale: 1,
+        scale: 2,
         useCORS: true,
       });
       const link = document.createElement("a");
@@ -92,7 +92,7 @@ function Results({ results, userName, onRestart, onSortAgain, onFullRestart }) {
     try {
       const canvas = await html2canvas(allImageRef.current, {
         backgroundColor: "#1a1a2e",
-        scale: 1,
+        scale: 2,
         useCORS: true,
       });
       const link = document.createElement("a");
@@ -260,16 +260,21 @@ function Results({ results, userName, onRestart, onSortAgain, onFullRestart }) {
         )}
       </div>
 
-      {/* ── Hidden Full-Ranking Card for Image Export (720px tall, auto width) ── */}
+      {/* ── Hidden Full-Ranking Card for Image Export ── */}
       {(() => {
-        // Calculate a grid layout that grows in both dimensions to fit all songs.
-        const CELL_W = 100; // px width per grid cell
-        const CELL_H = 90;  // px height per grid cell
-        const GAP = 8;      // px gap between cells
-        const PAD_X = 24;   // px horizontal padding on each side
-        const allRows = Math.max(2, Math.ceil(Math.sqrt(results.length * (9 / 16))));
-        const allCols = Math.ceil(results.length / allRows);
-        const cardWidth = allCols * CELL_W + (allCols - 1) * GAP + PAD_X * 2;
+        const CELL_W = 100;
+        const CELL_H = 90;
+        const GAP = 8;
+        const PAD_X = 24;
+        const TOP_COUNT = Math.min(10, results.length);
+        const TOP_COLS = 5;
+        const rest = results.slice(TOP_COUNT);
+        const restRows = rest.length > 0 ? Math.max(2, Math.ceil(Math.sqrt(rest.length * (9 / 16)))) : 0;
+        const restCols = rest.length > 0 ? Math.ceil(rest.length / restRows) : 0;
+        const TOP_CELL_W = 150;
+        const restGridW = restCols * CELL_W + Math.max(0, restCols - 1) * GAP;
+        const topGridW = TOP_COLS * TOP_CELL_W + (TOP_COLS - 1) * GAP;
+        const cardWidth = Math.max(topGridW, restGridW) + PAD_X * 2;
         return (
           <div
             className="save-all-card"
@@ -280,39 +285,63 @@ function Results({ results, userName, onRestart, onSortAgain, onFullRestart }) {
             <h3 className="save-all-card-title">
               🏆 {userName ? `${userName}'s Full Ranking` : "My Full Ranking"}
             </h3>
-            <ol
-              className="save-all-card-grid"
-              style={{
-                gridTemplateRows: `repeat(${allRows}, minmax(${CELL_H}px, auto))`,
-                gridTemplateColumns: `repeat(${allCols}, ${CELL_W}px)`,
-              }}
-            >
-              {results.map((song, index) => (
-                <li
-                  key={song.id}
-                  className={[
-                    "save-all-card-item",
-                    index < 3 && "save-all-top3",
-                    index >= 3 && index < 5 && "save-all-top5",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}
+            {/* ── Top 10 Showcase ── */}
+            <div className="save-all-showcase">
+              <h4 className="save-all-showcase-heading">⭐ Top 10</h4>
+              <ol className="save-all-showcase-grid">
+                {results.slice(0, TOP_COUNT).map((song, index) => (
+                  <li
+                    key={song.id}
+                    className={[
+                      "save-all-showcase-item",
+                      index < 3 && "save-all-showcase-top3",
+                    ]
+                      .filter(Boolean)
+                      .join(" ")}
+                  >
+                    <span className="save-all-showcase-rank">
+                      {index < 3 ? MEDAL[index] : `#${index + 1}`}
+                    </span>
+                    {song.coverArt && (
+                      <img
+                        className="save-all-showcase-art"
+                        src={song.coverArt}
+                        alt={song.title}
+                      />
+                    )}
+                    <span className="save-all-showcase-name">{song.title}</span>
+                    <span className="save-all-showcase-group">{song.group}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+            {/* ── Remaining Songs ── */}
+            {rest.length > 0 && (
+              <>
+                <h4 className="save-all-rest-heading">Remaining Songs</h4>
+                <ol className="save-all-card-grid" start={TOP_COUNT + 1}
+                  style={{
+                    gridTemplateRows: `repeat(${restRows}, minmax(${CELL_H}px, auto))`,
+                    gridTemplateColumns: `repeat(${restCols}, ${CELL_W}px)`,
+                  }}
                 >
-                  <span className="save-all-rank">
-                    {index < 3 ? MEDAL[index] : `#${index + 1}`}
-                  </span>
-                  {song.coverArt && (
-                    <img
-                      className="save-all-art"
-                      src={song.coverArt}
-                      alt={song.title}
-                    />
-                  )}
-                  <span className="save-all-song">{song.title}</span>
-                  <span className="save-all-group">{song.group}</span>
-                </li>
-              ))}
-            </ol>
+                  {rest.map((song, index) => (
+                    <li key={song.id} className="save-all-card-item">
+                      <span className="save-all-rank">#{TOP_COUNT + index + 1}</span>
+                      {song.coverArt && (
+                        <img
+                          className="save-all-art"
+                          src={song.coverArt}
+                          alt={song.title}
+                        />
+                      )}
+                      <span className="save-all-song">{song.title}</span>
+                      <span className="save-all-group">{song.group}</span>
+                    </li>
+                  ))}
+                </ol>
+              </>
+            )}
           </div>
         );
       })()}
