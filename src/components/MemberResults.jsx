@@ -280,9 +280,15 @@ function MemberResults({ results, userName, onRestart, onSortAgain, onFullRestar
         const CELL_H = 110;
         const GAP = 8;
         const PAD_X = 24;
-        const allRows = Math.max(2, Math.ceil(Math.sqrt(results.length * (9 / 16))));
-        const allCols = Math.ceil(results.length / allRows);
-        const cardWidth = allCols * CELL_W + (allCols - 1) * GAP + PAD_X * 2;
+        const TOP_COUNT = Math.min(10, results.length);
+        const TOP_COLS = 5;
+        const rest = results.slice(TOP_COUNT);
+        const restRows = rest.length > 0 ? Math.max(2, Math.ceil(Math.sqrt(rest.length * (9 / 16)))) : 0;
+        const restCols = rest.length > 0 ? Math.ceil(rest.length / restRows) : 0;
+        const TOP_CELL_W = 150;
+        const restGridW = restCols * CELL_W + Math.max(0, restCols - 1) * GAP;
+        const topGridW = TOP_COLS * TOP_CELL_W + (TOP_COLS - 1) * GAP;
+        const cardWidth = Math.max(topGridW, restGridW) + PAD_X * 2;
         return (
           <div
             className="save-all-card"
@@ -293,42 +299,69 @@ function MemberResults({ results, userName, onRestart, onSortAgain, onFullRestar
             <h3 className="save-all-card-title">
               🏆 {userName ? `${userName}'s Full Member Ranking` : "My Full Member Ranking"}
             </h3>
-            <ol
-              className="save-all-card-grid"
-              style={{
-                gridTemplateRows: `repeat(${allRows}, minmax(${CELL_H}px, auto))`,
-                gridTemplateColumns: `repeat(${allCols}, ${CELL_W}px)`,
-              }}
-            >
-              {results.map((member, index) => {
-                const groupColor = GROUP_COLORS[member.group] ?? "#e94560";
-                return (
-                  <li
-                    key={member.id}
-                    className={[
-                      "save-all-card-item",
-                      index < 3 && "save-all-top3",
-                      index >= 3 && index < 5 && "save-all-top5",
-                      index >= 5 && index < 10 && "save-all-top10",
-                    ]
-                      .filter(Boolean)
-                      .join(" ")}
-                  >
-                    <span className="save-all-rank">
-                      {index < 3 ? MEDAL[index] : `#${index + 1}`}
-                    </span>
-                    <MemberPhoto
-                      member={member}
-                      imgClassName="save-all-art"
-                      placeholderClassName="member-save-all-placeholder"
-                      placeholderStyle={{ backgroundColor: groupColor }}
-                    />
-                    <span className="save-all-song">{cleanRomaji(member.romaji)}</span>
-                    <span className="save-all-group">{member.group}</span>
-                  </li>
-                );
-              })}
-            </ol>
+            {/* ── Top 10 Showcase ── */}
+            <div className="save-all-showcase">
+              <h4 className="save-all-showcase-heading">⭐ Top 10</h4>
+              <ol className="save-all-showcase-grid">
+                {results.slice(0, TOP_COUNT).map((member, index) => {
+                  const groupColor = GROUP_COLORS[member.group] ?? "#e94560";
+                  return (
+                    <li
+                      key={member.id}
+                      className={[
+                        "save-all-showcase-item",
+                        index < 3 && "save-all-showcase-top3",
+                      ]
+                        .filter(Boolean)
+                        .join(" ")}
+                    >
+                      <span className="save-all-showcase-rank">
+                        {index < 3 ? MEDAL[index] : `#${index + 1}`}
+                      </span>
+                      <MemberPhoto
+                        member={member}
+                        imgClassName="save-all-showcase-art"
+                        placeholderClassName="member-save-all-showcase-placeholder"
+                        placeholderStyle={{ backgroundColor: groupColor }}
+                      />
+                      <span className="save-all-showcase-name">{cleanRomaji(member.romaji)}</span>
+                      <span className="save-all-showcase-group" style={{ color: groupColor }}>
+                        {member.group}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ol>
+            </div>
+            {/* ── Remaining Members ── */}
+            {rest.length > 0 && (
+              <>
+                <h4 className="save-all-rest-heading">Remaining Members</h4>
+                <ol className="save-all-card-grid" start={TOP_COUNT + 1}
+                  style={{
+                    gridTemplateRows: `repeat(${restRows}, minmax(${CELL_H}px, auto))`,
+                    gridTemplateColumns: `repeat(${restCols}, ${CELL_W}px)`,
+                  }}
+                >
+                  {rest.map((member, index) => {
+                    const groupColor = GROUP_COLORS[member.group] ?? "#e94560";
+                    return (
+                      <li key={member.id} className="save-all-card-item">
+                        <span className="save-all-rank">#{TOP_COUNT + index + 1}</span>
+                        <MemberPhoto
+                          member={member}
+                          imgClassName="save-all-art"
+                          placeholderClassName="member-save-all-placeholder"
+                          placeholderStyle={{ backgroundColor: groupColor }}
+                        />
+                        <span className="save-all-song">{cleanRomaji(member.romaji)}</span>
+                        <span className="save-all-group">{member.group}</span>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </>
+            )}
           </div>
         );
       })()}

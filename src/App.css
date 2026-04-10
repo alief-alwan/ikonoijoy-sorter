@@ -396,19 +396,97 @@ body {
   text-align: center;
 }
 
-.save-all-card-item.save-all-top3 {
-  border-color: rgba(255, 215, 0, 0.4);
-  background: rgba(255, 215, 0, 0.06);
+/* ── Top 10 Showcase Section ── */
+.save-all-showcase {
+  margin-bottom: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.08) 0%, rgba(233, 69, 96, 0.08) 100%);
+  border: 1px solid rgba(255, 215, 0, 0.2);
 }
 
-.save-all-card-item.save-all-top5 {
-  border-color: rgba(233, 69, 96, 0.35);
-  background: rgba(233, 69, 96, 0.06);
+.save-all-showcase-heading {
+  text-align: center;
+  font-size: 1.1rem;
+  margin: 0 0 12px;
+  color: #ffd700;
+  letter-spacing: 0.5px;
 }
 
-.save-all-card-item.save-all-top10 {
-  border-color: rgba(139, 92, 246, 0.35);
-  background: rgba(139, 92, 246, 0.06);
+.save-all-showcase-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.save-all-showcase-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 8px 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  text-align: center;
+}
+
+.save-all-showcase-item.save-all-showcase-top3 {
+  border-color: rgba(255, 215, 0, 0.5);
+  background: rgba(255, 215, 0, 0.1);
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.15);
+}
+
+.save-all-showcase-rank {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #ffd700;
+  line-height: 1;
+}
+
+.save-all-showcase-art {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.save-all-showcase-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  width: 100%;
+  line-height: 1.25;
+  overflow-wrap: break-word;
+}
+
+.save-all-showcase-group {
+  font-size: 0.65rem;
+  opacity: 0.7;
+  width: 100%;
+  overflow-wrap: break-word;
+}
+
+.member-save-all-showcase-placeholder {
+  width: 72px;
+  height: 72px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.save-all-rest-heading {
+  text-align: center;
+  font-size: 0.9rem;
+  margin: 4px 0 10px;
+  opacity: 0.6;
+  color: #fff;
 }
 
 .save-all-rank {
