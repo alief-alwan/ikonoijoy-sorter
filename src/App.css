@@ -406,6 +406,11 @@ body {
   background: rgba(233, 69, 96, 0.06);
 }
 
+.save-all-card-item.save-all-top10 {
+  border-color: rgba(139, 92, 246, 0.35);
+  background: rgba(139, 92, 246, 0.06);
+}
+
 .save-all-rank {
   font-size: 0.7rem;
   font-weight: 700;

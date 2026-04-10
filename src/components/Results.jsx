@@ -71,7 +71,7 @@ function Results({ results, userName, onRestart, onSortAgain, onFullRestart }) {
     try {
       const canvas = await html2canvas(imageRef.current, {
         backgroundColor: "#1a1a2e",
-        scale: 1,
+        scale: 2,
         useCORS: true,
       });
       const link = document.createElement("a");
@@ -92,7 +92,7 @@ function Results({ results, userName, onRestart, onSortAgain, onFullRestart }) {
     try {
       const canvas = await html2canvas(allImageRef.current, {
         backgroundColor: "#1a1a2e",
-        scale: 1,
+        scale: 2,
         useCORS: true,
       });
       const link = document.createElement("a");
@@ -294,6 +294,7 @@ function Results({ results, userName, onRestart, onSortAgain, onFullRestart }) {
                     "save-all-card-item",
                     index < 3 && "save-all-top3",
                     index >= 3 && index < 5 && "save-all-top5",
+                    index >= 5 && index < 10 && "save-all-top10",
                   ]
                     .filter(Boolean)
                     .join(" ")}
