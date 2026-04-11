@@ -320,7 +320,7 @@ function MemberResults({ results, userName, onRestart, onSortAgain, onFullRestar
                       </span>
                       <MemberPhoto
                         member={member}
-                        imgClassName="save-all-showcase-art"
+                        imgClassName="save-all-showcase-art member-save-all-showcase-photo"
                         placeholderClassName="member-save-all-showcase-placeholder"
                         placeholderStyle={{ backgroundColor: groupColor }}
                       />
@@ -350,7 +350,7 @@ function MemberResults({ results, userName, onRestart, onSortAgain, onFullRestar
                         <span className="save-all-rank">#{TOP_COUNT + index + 1}</span>
                         <MemberPhoto
                           member={member}
-                          imgClassName="save-all-art"
+                          imgClassName="save-all-art member-save-all-photo"
                           placeholderClassName="member-save-all-placeholder"
                           placeholderStyle={{ backgroundColor: groupColor }}
                         />
