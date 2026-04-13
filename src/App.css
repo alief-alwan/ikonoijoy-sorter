@@ -18,8 +18,9 @@ body {
   text-align: center;
 }
 
-.app-title {
-  font-size: 2rem;
+.app-logo {
+  width: 100%;
+  height: auto;
   margin-bottom: 0.25rem;
 }
 
@@ -927,8 +928,8 @@ body {
     padding: 1.25rem 0.75rem;
   }
 
-  .app-title {
-    font-size: 1.5rem;
+  .app-logo {
+    width: 100%;
   }
 
   .app-subtitle {
