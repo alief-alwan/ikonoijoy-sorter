@@ -19,7 +19,6 @@ body {
 }
 
 .app-logo {
-  max-width: 320px;
   width: 100%;
   height: auto;
   margin-bottom: 0.25rem;
@@ -930,7 +929,7 @@ body {
   }
 
   .app-logo {
-    max-width: 220px;
+    width: 100%;
   }
 
   .app-subtitle {
