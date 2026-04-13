@@ -277,7 +277,7 @@ function App() {
   if (loading) {
     return (
       <div className="app">
-        <h1 className="app-title">🌸 IKONOIJOY Sorter</h1>
+        <img className="app-logo" src="logo.png" alt="IKONOIJOY Sorter" />
         <div className="loading-spinner" />
         <p>Loading data…</p>
       </div>
@@ -287,7 +287,7 @@ function App() {
   if (error) {
     return (
       <div className="app">
-        <h1 className="app-title">🌸 IKONOIJOY Sorter</h1>
+        <img className="app-logo" src="logo.png" alt="IKONOIJOY Sorter" />
         <p className="error-message">❌ {error}</p>
       </div>
     );
@@ -295,7 +295,7 @@ function App() {
 
   return (
     <div className="app">
-      <h1 className="app-title">🌸 IKONOIJOY Sorter</h1>
+      <img className="app-logo" src="logo.png" alt="IKONOIJOY Sorter" />
       <p className="app-subtitle">=LOVE · ≠ME · ≒JOY</p>
 
       {/* ── Mode selection ── */}
