@@ -16,11 +16,14 @@ function MemberWelcome({ members, onStart, onBack }) {
   const [selectedGroups, setSelectedGroups] = useState(new Set(groups));
 
   // Track active/former toggles per group: { [group]: { active: bool, former: bool } }
-  const [statusToggles, setStatusToggles] = useState(() => {
-    const init = {};
-    for (const g of groups) init[g] = { active: true, former: false };
-    return init;
-  });
+    const [statusToggles, setStatusToggles] = useState(() => {
+        const init = {};
+        for (const g of groups) {
+            const hasFormer = members.some((m) => m.group === g && m.status === "former");
+            init[g] = { active: true, former: hasFormer };
+        }
+        return init;
+    });
 
   const [userName, setUserName] = useState("");
 
