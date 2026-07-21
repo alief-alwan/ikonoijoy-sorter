@@ -3,51 +3,53 @@
  * Scrapes IKONOIJOY-related song data from the iTunes Lookup API and saves
  * it as public/songs.json.
  *
- * Run automatically via the prebuild / prestart npm scripts (see scrapeMembers.js
- * for the sibling script that does the same for member data).
+ * Run automatically via the prebuild / prestart npm scripts.
  *
- * Unlike a keyword `search` scrape (relevance-ranked, prone to returning an
- * overlapping top-200 for every search term instead of the true union of an
- * artist's catalog), this script resolves each group's iTunes `artistId` once
- * and then walks their full discography via `lookup`:
- *   1. artistId is resolved by searching entity=musicArtist and matching the
- *      returned artistName against the group's known name variants.
- *   2. lookup?id={artistId}&entity=album pulls every album/single collection.
- *   3. lookup?id={collectionId}&entity=song pulls every track per collection
- *      (a single release is virtually never >200 tracks, so this avoids the
- *      200-result cap that would otherwise truncate an artist's full output).
- *   4. A direct lookup?id={artistId}&entity=song is also merged in as a
- *      safety net for any track iTunes doesn't tie to a visible collection.
+ * Each group's iTunes `artistId` is hardcoded below (resolved manually via
+ * the Apple Music web player / iTunes search JSON) rather than resolved by
+ * fuzzy-matching an artist name search, since name-based resolution was
+ * occasionally matching the wrong artist entirely.
+ *
+ * For each configured artistId, the script:
+ *   1. Does a direct lookup?id={artistId}&entity=song (fast, but capped at
+ *      200 results per request).
+ *   2. Walks every album/single via lookup?id={artistId}&entity=album, then
+ *      lookup?id={collectionId}&entity=song per collection, to catch any
+ *      tracks beyond the 200-track cap in step 1 (a single release is
+ *      virtually never >200 tracks).
+ *   3. Drops any track whose reported artistId doesn't match the configured
+ *      one (guards against compilation/various-artist contamination).
  */
 
 const fs = require("fs");
 const path = require("path");
 
 const OUT_FILE = path.resolve(__dirname, "../public/songs.json");
-const LIMIT = 200; // iTunes Lookup/Search API hard cap per request
+const LIMIT = 200; // iTunes Lookup API hard cap per request
 const MAX_RETRIES = 3;
 const REQUEST_DELAY_MS = 150; // be polite to the API between lookups
 
+// ── Group config ─────────────────────────────────────────────────────────
+// artistId = the numeric iTunes/Apple Music artist ID for this group.
+// Find it from an artist's Apple Music page URL, e.g.:
+//   https://music.apple.com/jp/artist/%3Dlove/1441420870 → artistId 1441420870
+// or by manually inspecting https://itunes.apple.com/search?term=NAME&entity=musicArtist
 const IDOL_GROUPS = [
     {
         name: "=LOVE",
-        searchNames: ["イコールラブ", "=LOVE", "イコラブ"],
-        artistNames: ["=LOVE", "イコールラブ"],
+        artistId: 1273762750,
     },
     {
         name: "≠ME",
-        searchNames: ["ノットイコールミー", "≠ME", "ノイミー"],
-        artistNames: ["≠ME", "ノットイコールミー", "ノイミー"],
+        artistId: 1477023494,
     },
     {
         name: "≒JOY",
-        searchNames: ["ニアリーイコールジョイ", "≒JOY", "ニアジョイ"],
-        artistNames: ["≒JOY", "ニアリーイコールジョイ"],
+        artistId: 1631260593,
     },
     {
         name: "IKONOIJOY",
-        searchNames: ["IKONOIJOY", "イコノイジョイ"],
-        artistNames: ["IKONOIJOY", "イコノイジョイ"],
+        artistId: 1633045397,
     },
 ];
 
@@ -87,37 +89,14 @@ async function fetchJsonWithRetry(url, label) {
     throw lastErr;
 }
 
-// ── Artist ID resolution ────────────────────────────────────────────────
-async function findArtistId(searchName, group) {
-    const url = `https://itunes.apple.com/search?term=${encodeURIComponent(searchName)}&country=jp&media=music&entity=musicArtist&limit=10`;
-    const data = await fetchJsonWithRetry(url, `artist search "${searchName}"`);
-    const results = Array.isArray(data.results) ? data.results : [];
-
-    // Prefer a result whose artistName exactly matches one of the group's
-    // known name variants, to avoid grabbing an unrelated same-named artist.
-    const allNames = [group.name, ...group.artistNames];
-    const exactMatch = results.find((r) => allNames.includes(r.artistName));
-    if (exactMatch) return exactMatch.artistId;
-
-    const partialMatch = results.find((r) =>
-        allNames.some((n) => r.artistName.includes(n) || n.includes(r.artistName))
-    );
-    return partialMatch ? partialMatch.artistId : null;
-}
-
-async function resolveArtistId(group) {
-    for (const searchName of group.searchNames) {
-        try {
-            const artistId = await findArtistId(searchName, group);
-            if (artistId) {
-                console.log(`  Resolved artistId ${artistId} for ${group.name} via "${searchName}"`);
-                return artistId;
-            }
-        } catch (e) {
-            console.warn(`  Artist lookup failed for "${searchName}": ${e.message}`);
-        }
+// ── Artist ID resolution (now just a config passthrough) ────────────────
+function resolveArtistId(group) {
+    if (!group.artistId) {
+        console.warn(`  ⚠️  No artistId configured for ${group.name}; skipping.`);
+        return null;
     }
-    return null;
+    console.log(`  Using configured artistId ${group.artistId} for ${group.name}`);
+    return group.artistId;
 }
 
 // ── Discography lookup ──────────────────────────────────────────────────
@@ -149,9 +128,8 @@ async function fetchTracksDirectForArtist(artistId) {
 }
 
 async function fetchSongsForGroup(group) {
-    const artistId = await resolveArtistId(group);
+    const artistId = resolveArtistId(group);
     if (!artistId) {
-        console.warn(`  ⚠️  Could not resolve an artistId for ${group.name}; skipping.`);
         return [];
     }
 
@@ -194,7 +172,19 @@ async function fetchSongsForGroup(group) {
     }
     console.log(`  Per-album lookups contributed ${newFromAlbums} additional track(s)`);
 
-    // ── Filtering (unchanged rules, applied after collecting the full set) ──
+    // Sanity check: confirm every track's artistId actually matches, since a
+    // collection lookup can occasionally include compilation/various-artist
+    // tracks that aren't truly this artist.
+    const mismatched = [...trackMap.values()].filter((t) => t.artistId !== artistId);
+    if (mismatched.length > 0) {
+        console.warn(`  ⚠️  ${mismatched.length} track(s) had a mismatched artistId and were dropped:`);
+        for (const t of mismatched) {
+            console.warn(`     - "${t.trackName}" (artist: ${t.artistName}, artistId: ${t.artistId})`);
+            trackMap.delete(t.trackId);
+        }
+    }
+
+    // ── Filtering (keyword rules only — artist identity is already guaranteed) ──
     const rejectedByKeyword = [];
     const filtered = [...trackMap.values()].filter((track) => {
         const titleLower = track.trackName.toLowerCase();
@@ -249,7 +239,7 @@ function dedupeSongs(allSongs) {
 }
 
 async function main() {
-    console.log("🔍 Scraping IKONOIJOY song data from the iTunes Lookup API (artistId-based) …");
+    console.log("🔍 Scraping IKONOIJOY song data from the iTunes Lookup API (fixed artistId) …");
     let allSongs = [];
     let scraped = false;
 
@@ -282,7 +272,7 @@ async function main() {
 
     const output = {
         scraped: scraped ? new Date().toISOString() : null,
-        source: scraped ? "itunes.apple.com (lookup by artistId)" : "fallback",
+        source: scraped ? "itunes.apple.com (lookup by fixed artistId)" : "fallback",
         songs: uniqueSongs,
     };
     fs.writeFileSync(OUT_FILE, JSON.stringify(output, null, 2), "utf8");
