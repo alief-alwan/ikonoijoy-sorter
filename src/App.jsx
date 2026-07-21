@@ -185,6 +185,52 @@ async function fetchMembers() {
     return Array.isArray(data.members) ? data.members : [];
 }
 
+// ── Save/resume progress ─────────────────────────────────────────────────
+const SAVE_KEY = "ikonoijoySorterProgress";
+const SAVE_VERSION = 1;
+
+function computeDataChecksum(items) {
+    // Cheap order-independent checksum: detects whether the underlying
+    // songs/members list has changed since the save was made (e.g. after a
+    // rescrape), so a stale save can be discarded instead of causing a
+    // mismatched replay.
+    return items.reduce(
+        (sum, item) => sum + String(item.id).length + (item.id !== undefined ? 1 : 0),
+        items.length
+    );
+}
+
+function saveProgress(state) {
+    try {
+        localStorage.setItem(
+            SAVE_KEY,
+            JSON.stringify({ version: SAVE_VERSION, savedAt: Date.now(), ...state })
+        );
+    } catch (e) {
+        console.warn("Failed to save progress:", e);
+    }
+}
+
+function loadProgress() {
+    try {
+        const raw = localStorage.getItem(SAVE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (parsed.version !== SAVE_VERSION) return null;
+        return parsed;
+    } catch {
+        return null;
+    }
+}
+
+function clearProgress() {
+    try {
+        localStorage.removeItem(SAVE_KEY);
+    } catch {
+        // ignore
+    }
+}
+
 function App() {
     // "mode" tracks whether we are sorting songs or members (null = not chosen yet)
     const [sortMode, setSortMode] = useState(null); // null | "songs" | "members"
@@ -198,6 +244,7 @@ function App() {
     const [progress, setProgress] = useState({ current: 0, total: 0 });
     const [userName, setUserName] = useState("");
     const [canUndo, setCanUndo] = useState(false);
+    const [resumeAvailable, setResumeAvailable] = useState(null); // null | saved-state object
     const generatorRef = useRef(null);
     const shuffledItemsRef = useRef([]);
     const choiceHistoryRef = useRef([]);
@@ -211,10 +258,39 @@ function App() {
             .then(([songData, memberData]) => {
                 setSongs(songData);
                 setMembers(memberData);
+
+                const saved = loadProgress();
+                if (saved) {
+                    const currentItems = saved.sortMode === "songs" ? songData : memberData;
+                    const checksumMatches = computeDataChecksum(currentItems) === saved.dataChecksum;
+                    if (checksumMatches) {
+                        setResumeAvailable(saved);
+                    } else {
+                        clearProgress(); // underlying data changed; the save is no longer valid
+                    }
+                }
             })
             .catch((err) => setError(err.message))
             .finally(() => setLoading(false));
     }, []);
+
+    const persistCurrentState = useCallback(
+        (overrides = {}) => {
+            const itemsForChecksum = sortMode === "songs" ? songs : members;
+            saveProgress({
+                sortMode,
+                phase,
+                userName,
+                dataChecksum: computeDataChecksum(itemsForChecksum),
+                sortPool: sortPoolRef.current,
+                shuffledItems: shuffledItemsRef.current,
+                choiceHistory: choiceHistoryRef.current,
+                results,
+                ...overrides,
+            });
+        },
+        [sortMode, phase, userName, songs, members, results]
+    );
 
     const startSorting = useCallback((itemsToSort, name) => {
         setUserName(name || "");
@@ -249,10 +325,12 @@ function App() {
         if (next.done) {
             setResults(next.value);
             setPhase("results");
+            persistCurrentState({ phase: "results", results: next.value });
         } else {
             setCurrentPair(next.value);
+            persistCurrentState({ phase: "sorting" });
         }
-    }, []);
+    }, [persistCurrentState]);
 
     const handleUndo = useCallback(() => {
         const history = choiceHistoryRef.current;
@@ -273,13 +351,15 @@ function App() {
         setCurrentPair(pair.value);
         setProgress((prev) => ({ ...prev, current: Math.max(0, prev.current - 1) }));
         setCanUndo(newHistory.length > 0);
-    }, []);
+        persistCurrentState({ phase: "sorting" });
+    }, [persistCurrentState]);
 
     const handleSortAgain = useCallback(() => {
         startSorting(sortPoolRef.current, userName);
     }, [startSorting, userName]);
 
     const handleRestart = useCallback(() => {
+        clearProgress();
         setPhase("welcome");
         setCurrentPair(null);
         setResults([]);
@@ -291,9 +371,46 @@ function App() {
     }, []);
 
     const handleFullRestart = useCallback(() => {
+        clearProgress();
         setSortMode(null);
         handleRestart();
     }, [handleRestart]);
+
+    const resumeSession = useCallback(() => {
+        const saved = resumeAvailable;
+        if (!saved) return;
+
+        setSortMode(saved.sortMode);
+        setUserName(saved.userName || "");
+        sortPoolRef.current = saved.sortPool;
+        shuffledItemsRef.current = saved.shuffledItems;
+        choiceHistoryRef.current = saved.choiceHistory;
+
+        if (saved.phase === "results") {
+            setResults(saved.results);
+            setPhase("results");
+        } else {
+            const gen = mergeSortGenerator(saved.shuffledItems);
+            generatorRef.current = gen;
+            let pair = gen.next();
+            for (const choice of saved.choiceHistory) {
+                pair = gen.next(choice);
+            }
+            setCurrentPair(pair.value);
+            setProgress({
+                current: saved.choiceHistory.length,
+                total: estimateComparisons(saved.shuffledItems.length),
+            });
+            setCanUndo(saved.choiceHistory.length > 0);
+            setPhase("sorting");
+        }
+        setResumeAvailable(null);
+    }, [resumeAvailable]);
+
+    const dismissResume = useCallback(() => {
+        clearProgress();
+        setResumeAvailable(null);
+    }, []);
 
     if (loading) {
         return (
@@ -319,8 +436,17 @@ function App() {
             <img className="app-logo" src="logo.png" alt="IKONOIJOY Sorter" />
             <p className="app-subtitle">=LOVE · ≠ME · ≒JOY</p>
 
+            {/* ── Resume prompt ── */}
+            {resumeAvailable && sortMode === null && (
+                <div className="resume-banner">
+                    <p>You have an unfinished {resumeAvailable.sortMode} sort in progress.</p>
+                    <button onClick={resumeSession}>Continue</button>
+                    <button onClick={dismissResume}>Start Over</button>
+                </div>
+            )}
+
             {/* ── Mode selection ── */}
-            {sortMode === null && (
+            {sortMode === null && !resumeAvailable && (
                 <ModeSelect onSelectMode={setSortMode} />
             )}
 
