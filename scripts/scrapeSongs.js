@@ -56,12 +56,29 @@ const IDOL_GROUPS = [
 const KATAKANA_LIVE_KEYWORDS = ["コンサート", "ツアー", "フェス", "フェスティテイク"];
 const KATAKANA_EXCEPTIONS = ["フェスティバル"];
 
+// Titles that contain "full size" as a substring but should NOT be excluded
+// by the "full size" filter (e.g. the phrase appears as part of the actual
+// song title rather than indicating a "TV Size"-style edit).
+const FULL_SIZE_EXCEPTIONS = ["恋人以上、好き未満"];
+
+// Matches "(Full Size)" / "（Full Size）" etc. in any casing, with optional
+// surrounding whitespace, so it can be stripped from the final display title.
+const FULL_SIZE_SUFFIX_RE = /[\(（]\s*full\s*size\s*[\)）]/gi;
+
 function hasLiveKatakanaKeyword(title) {
     let cleaned = title;
     for (const ex of KATAKANA_EXCEPTIONS) {
         cleaned = cleaned.replaceAll(ex, "");
     }
     return KATAKANA_LIVE_KEYWORDS.some((kw) => cleaned.includes(kw));
+}
+
+function isFullSizeExempt(title) {
+    return FULL_SIZE_EXCEPTIONS.some((ex) => title.includes(ex));
+}
+
+function stripFullSizeSuffix(title) {
+    return title.replace(FULL_SIZE_SUFFIX_RE, "").replace(/\s+/g, " ").trim();
 }
 
 function sleep(ms) {
@@ -189,13 +206,18 @@ async function fetchSongsForGroup(group) {
     const filtered = [...trackMap.values()].filter((track) => {
         const titleLower = track.trackName.toLowerCase();
         const title = track.trackName;
+        const isFullSizeExcluded =
+            titleLower.includes("full size") && !isFullSizeExempt(title);
         const isKeywordExcluded =
             titleLower.includes("off vocal") ||
             titleLower.includes("instrumental") ||
             titleLower.includes("inst.") ||
             titleLower.includes("tv size") ||
             titleLower.includes("tvサイズ") ||
-            titleLower.includes("full size") ||
+            isFullSizeExcluded ||
+            titleLower.includes("encore") ||
+            titleLower.includes("acoustic") ||
+            titleLower.includes("dance track") ||
             /\blive\b/.test(titleLower) ||
             /\bconcert\b/.test(titleLower) ||
             /\btour\b/.test(titleLower) ||
@@ -216,7 +238,7 @@ async function fetchSongsForGroup(group) {
 
     return filtered.map((track) => ({
         id: track.trackId,
-        title: track.trackName,
+        title: stripFullSizeSuffix(track.trackName),
         group: group.name,
         coverArt: track.artworkUrl100
             ? track.artworkUrl100.replace("100x100bb", "300x300bb")
