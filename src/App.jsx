@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useEffect } from "react";
+﻿import React, { useState, useRef, useCallback, useEffect } from "react";
 import Welcome from "./components/Welcome";
 import ModeSelect from "./components/ModeSelect";
 import MemberWelcome from "./components/MemberWelcome";
@@ -7,168 +7,18 @@ import MemberComparison from "./components/MemberComparison";
 import Results from "./components/Results";
 import MemberResults from "./components/MemberResults";
 import { mergeSortGenerator, estimateComparisons } from "./utils/mergeSort";
-import { initTokenizer, convertToRomaji } from "./utils/romaji";
 import "./App.css";
 
-const IDOL_GROUPS = [
-    {
-        name: "=LOVE",
-        searchNames: ["イコールラブ", "=LOVE", "イコラブ"],
-        artistNames: ["=LOVE", "イコールラブ"],
-    },
-    {
-        name: "≠ME",
-        searchNames: ["ノットイコールミー", "≠ME", "ノイミー"],
-        artistNames: ["≠ME", "ノットイコールミー", "ノイミー"],
-    },
-    {
-        name: "≒JOY",
-        searchNames: ["ニアリーイコールジョイ", "≒JOY", "ニアジョイ"],
-        artistNames: ["≒JOY", "ニアリーイコールジョイ"],
-    },
-    {
-        name: "IKONOIJOY",
-        searchNames: ["IKONOIJOY", "イコノイジョイ"],
-        artistNames: ["IKONOIJOY", "イコノイジョイ"],
-    },
-];
-
-const KATAKANA_LIVE_KEYWORDS = ["コンサート", "ツアー", "フェス", "フェスティテイク"];
-
-// Longer words that contain a live keyword but are not live indicators
-const KATAKANA_EXCEPTIONS = ["フェスティバル"];
-
-function hasLiveKatakanaKeyword(title) {
-    let cleaned = title;
-    for (const ex of KATAKANA_EXCEPTIONS) {
-        cleaned = cleaned.replaceAll(ex, "");
-    }
-    return KATAKANA_LIVE_KEYWORDS.some((kw) => cleaned.includes(kw));
-}
-
-async function fetchSongsForSearchName(searchName) {
-    const url = `https://itunes.apple.com/search?term=${encodeURIComponent(searchName)}&country=jp&media=music&entity=song&limit=200`;
-    const response = await fetch(url);
-    if (!response.ok) {
-        throw new Error(`iTunes API request failed with status ${response.status}`);
-    }
-    const data = await response.json();
-    return Array.isArray(data.results) ? data.results : [];
-}
-
-async function fetchSongsForGroup(group) {
-    try {
-        const trackArrays = await Promise.all(
-            group.searchNames.map((searchName) =>
-                fetchSongsForSearchName(searchName).catch((err) => {
-                    console.warn(`Search failed for "${searchName}":`, err);
-                    return [];
-                })
-            )
-        );
-        const trackMap = new Map();
-        for (const track of trackArrays.flat()) {
-            if (!trackMap.has(track.trackId)) {
-                trackMap.set(track.trackId, track);
-            }
-        }
-        const allNames = [group.name, ...group.artistNames];
-        return [...trackMap.values()]
-            .filter((track) => {
-                const titleLower = track.trackName.toLowerCase();
-                const title = track.trackName;
-                return (
-                    !titleLower.includes("off vocal") &&
-                    !titleLower.includes("instrumental") &&
-                    !titleLower.includes("inst.") &&
-                    !titleLower.includes("tv size") &&
-                    !titleLower.includes("tvサイズ") &&
-                    !titleLower.includes("full size") &&
-                    !titleLower.includes("特別公演") &&
-                    !titleLower.includes("korean") &&
-                    !/\blive\b/.test(titleLower) &&
-                    !/\bconcert\b/.test(titleLower) &&
-                    !/\btour\b/.test(titleLower) &&
-                    !/\bfes\b/.test(titleLower) &&
-                    !/\bfirst take\b/.test(titleLower) &&
-                    !hasLiveKatakanaKeyword(title)
-                );
-            })
-            .filter((track) =>
-                allNames.some((n) => track.artistName.includes(n))
-            )
-            .map((track) => ({
-                id: track.trackId,
-                title: track.trackName,
-                group: group.name,
-                coverArt: track.artworkUrl100
-                    ? track.artworkUrl100.replace("100x100bb", "300x300bb")
-                    : null,
-                previewUrl: track.previewUrl,
-            }));
-    } catch (error) {
-        console.error(`Failed to fetch data for ${group.name}:`, error);
-        return [];
-    }
-}
-
-const JAPANESE_CHAR_RE = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]/;
-
-async function addRomajiTitles(songs) {
-    try {
-        await initTokenizer();
-        return Promise.all(
-            songs.map(async (song) => {
-                if (!JAPANESE_CHAR_RE.test(song.title)) return song;
-                const romaji = await convertToRomaji(song.title);
-                return { ...song, romajiTitle: romaji };
-            })
-        );
-    } catch {
-        return songs;
-    }
-}
-
-function dedupeSongs(allSongs) {
-    const uniqueSongs = [];
-    const seenSongKeys = new Set();
-    for (const song of allSongs) {
-        const key = `${song.group}|${song.title.toLowerCase().trim().replace(/\s+/g, " ")}`;
-        if (!seenSongKeys.has(key)) {
-            seenSongKeys.add(key);
-            uniqueSongs.push(song);
-        }
-    }
-    return uniqueSongs;
-}
-
 async function fetchAllSongs() {
-    // Prefer the pre-scraped static file (generated at build time by
-    // scripts/scrapeSongs.js), which isn't subject to the iTunes API's
-    // 200-result-per-query cap the way a single live client-side scrape is,
-    // and logs any misses during the build instead of silently dropping songs.
-    try {
-        const response = await fetch("./songs.json");
-        if (response.ok) {
-            const data = await response.json();
-            if (Array.isArray(data.songs) && data.songs.length > 0) {
-                return addRomajiTitles(data.songs);
-            }
-        }
-    } catch {
-        // fall through to live scrape
+    // public/songs.json is generated at build time by scripts/scrapeSongs.js
+    // (filtering, dedupe and romaji are all done there).
+    const response = await fetch("./songs.json", { cache: "no-cache" });
+    if (!response.ok) throw new Error("Could not load song data. Please try again later.");
+    const data = await response.json();
+    if (!Array.isArray(data.songs) || data.songs.length === 0) {
+        throw new Error("Could not load any songs. Please try again later.");
     }
-
-    const [results] = await Promise.all([
-        Promise.all(IDOL_GROUPS.map(fetchSongsForGroup)),
-        initTokenizer().catch(() => { }),
-    ]);
-    const allSongs = results.flat();
-    if (allSongs.length === 0) {
-        throw new Error("Could not load any songs from iTunes. Please try again later.");
-    }
-    const uniqueSongs = dedupeSongs(allSongs);
-    return addRomajiTitles(uniqueSongs);
+    return data.songs;
 }
 
 function shuffleArray(array) {
@@ -181,7 +31,7 @@ function shuffleArray(array) {
 }
 
 async function fetchMembers() {
-    const response = await fetch("./members.json");
+    fetch("./members.json", { cache: "no-cache" });
     if (!response.ok) throw new Error("Could not load member data.");
     const data = await response.json();
     return Array.isArray(data.members) ? data.members : [];

@@ -23,11 +23,13 @@
 
 const fs = require("fs");
 const path = require("path");
+const { addRomajiTitles } = require("./romaji");
 
 const OUT_FILE = path.resolve(__dirname, "../public/songs.json");
 const LIMIT = 200; // iTunes Lookup API hard cap per request
 const MAX_RETRIES = 3;
 const REQUEST_DELAY_MS = 150; // be polite to the API between lookups
+const CONCURRENCY = 4; // parallel per-album lookups
 
 // ── Group config ─────────────────────────────────────────────────────────
 // artistId = the numeric iTunes/Apple Music artist ID for this group.
@@ -56,6 +58,23 @@ const IDOL_GROUPS = [
 const KATAKANA_LIVE_KEYWORDS = ["コンサート", "ツアー", "フェス", "フェスティテイク"];
 const KATAKANA_EXCEPTIONS = ["フェスティバル"];
 
+// Plain substring matches (checked against the lowercased title)
+const EXCLUDED_SUBSTRINGS = [
+    "off vocal",
+    "instrumental",
+    "inst.",
+    "tv size",
+    "tvサイズ",
+    "encore",
+    "acoustic",
+    "dance track",
+    "特別公演",
+    "korean",
+];
+
+// Whole-word matches (so e.g. "alive" or "tourist" aren't caught)
+const EXCLUDED_WORDS_RE = /\b(live|concert|tour|fes|first take)\b/;
+
 // Titles that contain "full size" as a substring but should NOT be excluded
 // by the "full size" filter (e.g. the phrase appears as part of the actual
 // song title rather than indicating a "TV Size"-style edit).
@@ -83,6 +102,27 @@ function stripFullSizeSuffix(title) {
 
 function sleep(ms) {
     return new Promise((r) => setTimeout(r, ms));
+}
+
+function isKeywordExcluded(title) {
+    const titleLower = title.toLowerCase();
+    return (
+        EXCLUDED_SUBSTRINGS.some((s) => titleLower.includes(s)) ||
+        (titleLower.includes("full size") && !isFullSizeExempt(title)) ||
+        EXCLUDED_WORDS_RE.test(titleLower) ||
+        hasLiveKatakanaKeyword(title)
+    );
+}
+
+// Runs `worker` over `items` with at most `limit` in flight at once.
+async function runPool(items, limit, worker) {
+    let next = 0;
+    const runners = Array.from({ length: Math.min(limit, items.length) }, async () => {
+        while (next < items.length) {
+            await worker(items[next++]);
+        }
+    });
+    await Promise.all(runners);
 }
 
 // ── HTTP helper with retry ──────────────────────────────────────────────
@@ -152,28 +192,24 @@ async function fetchSongsForGroup(group) {
 
     const trackMap = new Map();
 
-    // 1. Direct artist song lookup (fast, but capped at 200).
-    try {
-        const directTracks = await fetchTracksDirectForArtist(artistId);
-        for (const t of directTracks) trackMap.set(t.trackId, t);
-        console.log(`  Direct lookup: ${directTracks.length} track(s)`);
-    } catch (e) {
-        console.warn(`  Direct song lookup failed: ${e.message}`);
-    }
+    // 1. Direct artist song lookup (capped at 200) and the album list, in parallel.
+    const [directTracks, collections] = await Promise.all([
+        fetchTracksDirectForArtist(artistId).catch((e) => {
+            console.warn(`  Direct song lookup failed: ${e.message}`);
+            return [];
+        }),
+        fetchCollectionsForArtist(artistId).catch((e) => {
+            console.warn(`  Album lookup failed: ${e.message}`);
+            return [];
+        }),
+    ]);
+    for (const t of directTracks) trackMap.set(t.trackId, t);
+    console.log(`  Direct lookup: ${directTracks.length} track(s)`);
+    console.log(`  Found ${collections.length} album/single collection(s)`);
 
-    await sleep(REQUEST_DELAY_MS);
-
-    // 2. Per-album lookups to catch anything beyond the 200-track cap above.
-    let collections = [];
-    try {
-        collections = await fetchCollectionsForArtist(artistId);
-        console.log(`  Found ${collections.length} album/single collection(s)`);
-    } catch (e) {
-        console.warn(`  Album lookup failed: ${e.message}`);
-    }
-
+    // 2. Per-album lookups (bounded concurrency) to catch anything beyond the 200-track cap.
     let newFromAlbums = 0;
-    for (const collection of collections) {
+    await runPool(collections, CONCURRENCY, async (collection) => {
         try {
             await sleep(REQUEST_DELAY_MS);
             const tracks = await fetchTracksForCollection(collection.collectionId);
@@ -186,7 +222,7 @@ async function fetchSongsForGroup(group) {
         } catch (e) {
             console.warn(`  Track lookup failed for "${collection.collectionName}": ${e.message}`);
         }
-    }
+    });
     console.log(`  Per-album lookups contributed ${newFromAlbums} additional track(s)`);
 
     // Sanity check: confirm every track's artistId actually matches, since a
@@ -204,29 +240,8 @@ async function fetchSongsForGroup(group) {
     // ── Filtering (keyword rules only — artist identity is already guaranteed) ──
     const rejectedByKeyword = [];
     const filtered = [...trackMap.values()].filter((track) => {
-        const titleLower = track.trackName.toLowerCase();
-        const title = track.trackName;
-        const isFullSizeExcluded =
-            titleLower.includes("full size") && !isFullSizeExempt(title);
-        const isKeywordExcluded =
-            titleLower.includes("off vocal") ||
-            titleLower.includes("instrumental") ||
-            titleLower.includes("inst.") ||
-            titleLower.includes("tv size") ||
-            titleLower.includes("tvサイズ") ||
-            isFullSizeExcluded ||
-            titleLower.includes("encore") ||
-            titleLower.includes("acoustic") ||
-            titleLower.includes("dance track") ||
-            /\blive\b/.test(titleLower) ||
-            /\bconcert\b/.test(titleLower) ||
-            /\btour\b/.test(titleLower) ||
-            /\bfes\b/.test(titleLower) ||
-            /\bfirst take\b/.test(titleLower) ||
-            hasLiveKatakanaKeyword(title);
-
-        if (isKeywordExcluded) {
-            rejectedByKeyword.push(title);
+        if (isKeywordExcluded(track.trackName)) {
+            rejectedByKeyword.push(track.trackName);
             return false;
         }
         return true;
@@ -290,7 +305,7 @@ async function main() {
         console.warn("⚠️  No existing public/songs.json and scrape failed; writing empty file.");
     }
 
-    const uniqueSongs = dedupeSongs(allSongs);
+    const uniqueSongs = await addRomajiTitles(dedupeSongs(allSongs));
 
     const output = {
         scraped: scraped ? new Date().toISOString() : null,
