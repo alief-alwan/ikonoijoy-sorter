@@ -84,8 +84,8 @@ async function fetchSongsForGroup(group) {
                     !titleLower.includes("tv size") &&
                     !titleLower.includes("tvサイズ") &&
                     !titleLower.includes("full size") &&
-                    !titleLower.includes("≠me 特別公演 2025") &&
-                    !titleLower.includes("korean ver.") &&
+                    !titleLower.includes("特別公演") &&
+                    !titleLower.includes("korean") &&
                     !/\blive\b/.test(titleLower) &&
                     !/\bconcert\b/.test(titleLower) &&
                     !/\btour\b/.test(titleLower) &&
