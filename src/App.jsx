@@ -31,7 +31,7 @@ function shuffleArray(array) {
 }
 
 async function fetchMembers() {
-    fetch("./members.json", { cache: "no-cache" });
+    const response = await fetch("./members.json", { cache: "no-cache" });
     if (!response.ok) throw new Error("Could not load member data.");
     const data = await response.json();
     return Array.isArray(data.members) ? data.members : [];
