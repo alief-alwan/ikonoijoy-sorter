@@ -70,6 +70,7 @@ const EXCLUDED_SUBSTRINGS = [
     "dance track",
     "特別公演",
     "korean",
+    "opening"
 ];
 
 // Whole-word matches (so e.g. "alive" or "tourist" aren't caught)
